@@ -8,6 +8,7 @@ from numpy import arange, sin, pi
 from PyQt5 import QtWidgets
 
 from evb1000viewer import Ui_MainWindow
+from tag_item_ui import Ui_tagItem
 
 class MplCanvas(FigureCanvas):
     """Menage MatPlotLib figure in PyQt canvas"""
@@ -55,12 +56,51 @@ class MainWindow(QtWidgets.QMainWindow):
         # connect action buttons
         self.ui.actionAbout.triggered.connect(self.about)
         self.ui.actionQuit.triggered.connect(self.quit)
-        
+
+        # dictionary of the widgets that reppresent each Tag
+        self.tags_widgets = dict()
+
     def add_canvas(self):
         """Simple example""" 
         sc = StaticMplCanvas(self.ui.matPlotGroupBox, width=5, height=4, dpi=100)
         self.ui.matPlotGroupBoxLayout.addWidget(sc)
 
+    def add_widget_tag(self, key, tag_id, port):
+        """
+        add widget to the layout
+
+        allow to add information about a Tag (tag_id and serial port).
+        """
+        # set default value to the widget
+        tag_item = tagItem()
+        tag_item.ui.tagIdLabelValue.setText(tag_id)
+        tag_item.ui.portLabelValue.setText(port)
+        tag_item.ui.frequencyLabelValue.setText('-')
+
+        # add the widget to the dictionary
+        self.tags_widgets[key] = tag_item
+
+        # add the widget to the layout
+        self.ui.connectedTagsScrollAreaWidgetLayout.insertWidget(0, tag_item)
+
+    def remove_widget_tag(self, key):
+        """
+        remove Tag widget from the layout
+        
+        allow to remove a widget. Key of the widget, the same used in add_widget_tag method,
+        id needed.
+        """
+        import sip
+        widget = self.tags_widgets[key]
+
+        # remove widget from layout 
+        self.ui.connectedTagsScrollAreaWidgetLayout.removeWidget(widget)
+        sip.delete(widget)
+
+        # remove elements from dictionary
+        del self.tags_widgets[key]
+        widget = None
+        
     def about(self):
         """
         About method
@@ -78,12 +118,26 @@ class MainWindow(QtWidgets.QMainWindow):
         """
         self.close()
 
+class tagItem(QtWidgets.QWidget):
+    """ tagItem class """
+    def __init__(self, parent = None):
+        super().__init__(parent)
+
+        # Set up the user interface for tagItem
+        self.ui = Ui_tagItem()
+        self.ui.setupUi(self)
+
+        
 # construct a QApplication
 app = QtWidgets.QApplication(sys.argv)
 
 # instantiate the main window and add canvas 
 gui = MainWindow()
 gui.add_canvas()
+
+# add two tags (only for example)
+gui.add_widget_tag("TAG0", "Tag 0", "COM3")
+gui.add_widget_tag("TAG1", "Tag 1", "COM2")
 
 # show the main window
 gui.show()
