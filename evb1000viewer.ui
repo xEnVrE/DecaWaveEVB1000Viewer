@@ -19,7 +19,7 @@
      <widget class="QGroupBox" name="connectedTagsGroupBox">
       <property name="maximumSize">
        <size>
-        <width>400</width>
+        <width>300</width>
         <height>16777215</height>
        </size>
       </property>
@@ -37,11 +37,25 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>374</width>
+            <width>274</width>
             <height>123</height>
            </rect>
           </property>
-          <layout class="QVBoxLayout" name="connectedTagsScrollAreaWidgetLayout"/>
+          <layout class="QVBoxLayout" name="connectedTagsScrollAreaWidgetLayout">
+           <item>
+            <spacer name="verticalSpacer">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
          </widget>
         </widget>
        </item>
