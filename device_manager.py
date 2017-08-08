@@ -186,6 +186,10 @@ class DeviceManager(QThread):
         
         return devs
 
+    @new_devices.setter
+    def new_devices(self, devs):
+        self._new_devices = devs
+
     def device(self, device_id):
         return self.configured_devices[device_id]
     
@@ -201,7 +205,7 @@ class DeviceManager(QThread):
             # in case of new ports
             if new_ports:
                 # configure devices connected to ports in new_ports
-                self._new_devices = self.configure_devices(new_ports)
+                self.new_devices = self.configure_devices(new_ports)
 
                 # signal GUI that new devices are available
                 self.new_devices_connected.emit()
