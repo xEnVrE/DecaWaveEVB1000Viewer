@@ -81,7 +81,7 @@ class MainWindow(QtWidgets.QMainWindow):
         tag_item = tagItem()
         tag_item.ui.tagIdLabelValue.setText(tag_id)
         tag_item.ui.portLabelValue.setText(port)
-        tag_item.ui.frequencyLabelValue.setText("-")
+        tag_item.ui.rateLabelValue.setText("-")
 
         # add the widget to the dictionary
         self.tags_widgets[key] = tag_item
