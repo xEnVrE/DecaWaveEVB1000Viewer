@@ -16,6 +16,12 @@ from threading import Lock
 # sleep
 from time import sleep
 
+# sys
+import sys
+
+# QtWidgets contains QApplication
+from PyQt5 import QtWidgets
+
 class Device(QThread):
     """
     Represents an EVB1000 Tag connected through a serial port.
@@ -37,6 +43,9 @@ class Device(QThread):
         # set device state
         self._state = 'running'
         self.state_lock = Lock()
+
+        # set device id
+        self.id = hash(self.port)
 
     @property
     def state(self):
@@ -76,8 +85,6 @@ class Device(QThread):
         if self.state == 'stopped':
             self.close()
 
-        print('dead')
-        
     def configure(self):
         """
         Get a serial.Serial instance and configure it.
@@ -116,8 +123,12 @@ class DeviceManager(QThread):
     """
     Manage EVB1000 Tag devices connected through a serial port.
     """
+
+    #pyqt signals are class attributes
+    new_devices_connected = pyqtSignal()
     
     def __init__(self, target_vid, target_pid):
+
 
         # call Thread constructor
         QThread.__init__(self)
@@ -128,50 +139,63 @@ class DeviceManager(QThread):
         # empty dictionary of devices
         self.configured_devices = dict()
 
+        # empty list of *newly* configured devices
+        self._new_devices = []
+
         # store pid and vid for the target device of interest
         self.target_vid = target_vid
         self.target_pid = target_pid
+
+    @property
+    def new_devices(self):
+
+        # copy new devices
+        devs = self._new_devices
+
+        # clean _new_devices
+        self._new_devices = []
+        
+        return devs
 
     def run(self):
         """
         Thread main method.
         """
 
-        while(1):
-            try:
-                # update new and remove ports
-                new_ports, removed_ports = self.update_ports()
-
-                if new_ports:
-                    print('New ports:')
-                    print(new_ports)
-                    for p in new_ports:
-                        print(p)
-                        print(p.hwid)
-                if removed_ports:
-                    print('Removed ports:')
-                    print(removed_ports)
-
+        while True:
+            # update new and removed ports
+            new_ports, removed_ports = self.update_ports()
+                
+            # in case of new ports
+            if new_ports:
                 # configure devices connected to ports in new_ports
-                self.configure_devices(new_ports)
-                    
+                self._new_devices = self.configure_devices(new_ports)
+
+                # signal GUI that new devices are available
+                self.new_devices_connected.emit()
+
+            # in case of removed ports
+            if removed_ports:
                 # removed devices that were disconnected
                 self.remove_devices(removed_ports)
-                
-            except KeyboardInterrupt:
-                print('Bye bye')
-                return 
 
     def configure_devices(self, ports):
         """
         Configure devices connected via serial ports in ports.
+
+        Return a list containing the new devices.
         """
 
+        new_devices = []
+        
         # for each port create a new Device and start the underlying thread
         for p in ports:
-            print(hash(p))
-            self.configured_devices[p] = Device(p)
-            self.configured_devices[p].start()
+            new_device = Device(p)
+            self.configured_devices[new_device.id] = new_device
+            new_devices.append(new_device)
+            new_device.start()
+
+        return new_devices
 
     def remove_devices(self, ports):
         """
@@ -181,8 +205,9 @@ class DeviceManager(QThread):
         # for each port change the state of the underlying thread
         # from 'running' to 'stopped' using stop_device()
         for p in ports:
-            print(hash(p))
-            self.configured_devices[p].stop_device()
+            # device id is defined as port.__hash__()
+            device_id = hash(p)
+            self.configured_devices[device_id].stop_device()
 
     def update_ports(self):
         """
@@ -219,7 +244,34 @@ class DeviceManager(QThread):
 
         return new_ports, removed_ports
 
-if __name__ == '__main__':
-    dev_man = DeviceManager(target_vid = '0403', target_pid = '6001')
-    dev_man.run()
+    def register_new_devices_connected_slot(self, slot):
+        self.new_devices_connected.connect(slot)
+
+class MockGUI(QThread):
     
+    def __init__(self, DM):
+        # call Thread constructor
+        QThread.__init__(self)
+        self.DM = DM
+        self.DM.register_new_devices_connected_slot(self.new_devices_connected)
+
+    @pyqtSlot()
+    def new_devices_connected(self):
+        devs = self.DM.new_devices
+        for dev in devs:
+            print(dev.port.device)
+
+    def run(self):
+        while True:
+              pass
+
+if __name__ == '__main__':
+    app = QtWidgets.QApplication(sys.argv)
+
+    dev_man = DeviceManager(target_vid = '0403', target_pid = '6001')
+    dev_man.start()
+
+    gui = MockGUI(dev_man)
+    gui.start()
+
+    sys.exit(app.exec_())
