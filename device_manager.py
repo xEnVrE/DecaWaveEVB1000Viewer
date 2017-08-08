@@ -151,6 +151,9 @@ class Device(QThread):
 class DeviceManager(QThread):
     """
     Manage EVB1000 Tag devices connected through a serial port.
+
+    Inherits from QThread to handle devices connection/disconnection
+    in background.
     """
 
     #pyqt signals are class attributes
