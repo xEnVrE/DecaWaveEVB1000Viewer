@@ -30,6 +30,9 @@ class Device(QThread):
     in background.
     """
 
+    #pyqt signals are class attributes
+    new_data_available = pyqtSignal(str)
+
     def __init__(self, port):
         # call Thread constructor
         QThread.__init__(self)
@@ -45,8 +48,26 @@ class Device(QThread):
         self.state_lock = Lock()
 
         # set device id
-        self.id = hash(self.port)
+        self.id = str(hash(self.port))
 
+        # data
+        self._last_data = None
+        self.data_lock = Lock()
+
+    @property
+    def last_data(self):
+        self.data_lock.acquire()
+        value = self._last_data
+        self.data_lock.release()
+
+        return value
+
+    @last_data.setter
+    def last_data(self, data):
+        self.data_lock.acquire()
+        self._last_data = data
+        self.data_lock.release()
+        
     @property
     def state(self):
         self.state_lock.acquire()
@@ -78,7 +99,11 @@ class Device(QThread):
         
         while self.state == 'running':
             try:
-                line_byte = self.serial.readline()
+                self.last_data = self.serial.readline()
+
+                # signal the GUI that new data is available
+                self.new_data_available.emit(self.id)
+
             except SerialException:
                 pass
 
@@ -119,6 +144,10 @@ class Device(QThread):
 
         self.serial.close()
 
+    def register_new_data_available_slot(self, slot):
+        self.new_data_available.connect(slot)
+
+
 class DeviceManager(QThread):
     """
     Manage EVB1000 Tag devices connected through a serial port.
@@ -157,6 +186,9 @@ class DeviceManager(QThread):
         
         return devs
 
+    def device(self, device_id):
+        return self.configured_devices[device_id]
+    
     def run(self):
         """
         Thread main method.
@@ -205,8 +237,8 @@ class DeviceManager(QThread):
         # for each port change the state of the underlying thread
         # from 'running' to 'stopped' using stop_device()
         for p in ports:
-            # device id is defined as port.__hash__()
-            device_id = hash(p)
+            # device id is defined as str(port.__hash__())
+            device_id = str(hash(p))
             self.configured_devices[device_id].stop_device()
 
     def update_ports(self):
@@ -225,6 +257,7 @@ class DeviceManager(QThread):
         # VID:PID == target_vid:target_pid
         vid_pid = self.target_vid + ':' + self.target_pid
         ports = [p for p in list_ports.grep(vid_pid)]
+        #ports = list_ports.comports()
         
         # add new ports to connected_ports
         # and update new_ports
@@ -248,18 +281,36 @@ class DeviceManager(QThread):
         self.new_devices_connected.connect(slot)
 
 class MockGUI(QThread):
+    """
+    Mock GUI class to test slot-signal connection
+    """
     
-    def __init__(self, DM):
+    def __init__(self, dev_man):
         # call Thread constructor
         QThread.__init__(self)
-        self.DM = DM
-        self.DM.register_new_devices_connected_slot(self.new_devices_connected)
+
+        # save reference to instance of the device manager
+        self.dev_man = dev_man
+        self.dev_man.register_new_devices_connected_slot(self.new_devices_connected)
 
     @pyqtSlot()
     def new_devices_connected(self):
-        devs = self.DM.new_devices
+        # get new devices
+        devs = self.dev_man.new_devices
+
+        # connect new_data_available to slot of each device
         for dev in devs:
-            print(dev.port.device)
+            print('New device connected: ' + dev.port.device)
+            dev.register_new_data_available_slot(self.new_data_available)
+
+    @pyqtSlot(str)
+    def new_data_available(self, device_id):
+        
+        # retrieve device from device manager
+        device = self.dev_man.device(device_id)
+
+        # print new data
+        print(device_id + ' ' + str(device.last_data))
 
     def run(self):
         while True:
