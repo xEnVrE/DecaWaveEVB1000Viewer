@@ -26,7 +26,7 @@ class Device(QThread):
     """
     Represents an EVB1000 Tag connected through a serial port.
 
-    Inherits from threading.Thread to handle serial i/o operations
+    Inherits from QThread to handle serial i/o operations
     in background.
     """
 
@@ -249,8 +249,8 @@ class DeviceManager(QThread):
         usb device match the target VID and PID.
         Missing ports are remove from connected_ports.
 
-        Return a list containing new devices.
-        Return a list containing removed devices.
+        Return a list containing new ports.
+        Return a list containing removed ports.
         """
         
         # fetch only those ports having
