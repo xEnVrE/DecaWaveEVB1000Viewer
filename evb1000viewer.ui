@@ -115,6 +115,12 @@
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
         <widget class="QScrollArea" name="logScrollArea">
+         <property name="verticalScrollBarPolicy">
+          <enum>Qt::ScrollBarAsNeeded</enum>
+         </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QAbstractScrollArea::AdjustToContents</enum>
+         </property>
          <property name="widgetResizable">
           <bool>true</bool>
          </property>
@@ -134,7 +140,7 @@
               <cursorShape>ArrowCursor</cursorShape>
              </property>
              <property name="text">
-              <string>Starting...</string>
+              <string/>
              </property>
              <property name="margin">
               <number>0</number>
