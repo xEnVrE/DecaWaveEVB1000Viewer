@@ -1,60 +1,30 @@
-import sys
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-
-# neded for static canvas (example)
-from numpy import arange, sin, pi
-
-# needed for logger
-from time import localtime, strftime
-
+#PyQt5
 from PyQt5 import QtWidgets
+import sys
 
-from evb1000viewer import Ui_MainWindow
+# QtDesigner generated classes
+from evb1000viewer import Ui_EVB1000ViewerMainWindow
 from tag_item_ui import Ui_tagItem
 
-class MplCanvas(FigureCanvas):
-    """Menage MatPlotLib figure in PyQt canvas"""
+# Matplotlib class
+from viewer_canvas import ViewerCanvas
 
-    def __init__(self, parent=None, width=5, height=4, dpi=100):
-        # instantiate Figure object
-        fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111)
-        self.compute_figure()
-        FigureCanvas.__init__(self, fig)
-        
-        #add parent
-        self.setParent(parent)
+# for logging
+from time import localtime, strftime
 
-        # set size
-        FigureCanvas.setSizePolicy(self,
-                                   QtWidgets.QSizePolicy.Expanding,
-                                   QtWidgets.QSizePolicy.Expanding)
-        FigureCanvas.updateGeometry(self)
-
-    #def compute_figure(self):
-    #   pass
-
-
-class StaticMplCanvas(MplCanvas):
-    """Simple canvas with a sine plot."""
-
-    def compute_figure(self):
-        """
-        Plot a sine function
-        """
-        t = arange(0.0, 3.0, 0.01)
-        s = sin(2*pi*t)
-        self.axes.plot(t, s)
-        
-class MainWindow(QtWidgets.QMainWindow):
-    """ MainWindow class """
+class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
+    """
+    Main window class of EVB1000 Viewer
+    """
     def __init__(self):
+        # call QMainWindow constructor
         super().__init__()
 
-        # Set up the user interface from MainWindow
-        self.ui = Ui_MainWindow()
+        # Set up the user interface
+        self.ui = Ui_EVB1000ViewerMainWindow()
         self.ui.setupUi(self)
+
+        self.ui.connectedTagsScrollArea.setFrameShape(QtWidgets.QFrame.NoFrame);
 
         # connect action buttons
         self.ui.actionAbout.triggered.connect(self.about)
@@ -63,22 +33,45 @@ class MainWindow(QtWidgets.QMainWindow):
         # instantiate the Logger
         self.logger = Logger(self.ui.logLabel, self.ui.logScrollArea)
         
-        # dictionary of the widgets that reppresent each Tag
+        # empty dictionary of tags widgets
         self.tags_widgets = dict()
 
-    def add_canvas(self):
-        """Simple example""" 
-        sc = StaticMplCanvas(self.ui.matPlotGroupBox, width=5, height=4, dpi=100)
-        self.ui.matPlotGroupBoxLayout.addWidget(sc)
-
-    def add_widget_tag(self, key, tag_id, port):
+    def add_matplotlib_canvas(self):
         """
-        add widget to the layout
-
-        allow to add information about a Tag (tag_id and serial port).
+        Add Matplotlib canvas to the main window.
         """
-        # set default value to the widget
-        tag_item = tagItem()
+        
+        # instantiate ViewerCanvas
+        canvas = ViewerCanvas(self.ui.matPlotGroupBox)
+
+        # evaluate basis change according to the z coordinate
+        # of the fourth anchor
+        anchor_3_height_z = 1
+        canvas.eval_basis_change(anchor_3_height_z)
+
+        #
+        canvas.anchors_plane_height = 1
+
+        # set anchor positions (test)
+        canvas.set_anchor_position([[0,0,0],[0,1,0],[2, -1, 0],[1, 2, 1]])
+
+        # eval and set figure limits
+        canvas.eval_figure_limits()
+        canvas.set_axes_limits()
+
+        # draw anchors, plane and reference frame of anchor 0
+        canvas.draw_static_objects()
+
+        # add canvas to the main window
+        self.ui.matPlotGroupBoxLayout.addWidget(canvas)
+
+    def add_tag_widget(self, key, tag_id, port):
+        """
+        Add a new tag widget to the layout.
+        """
+        
+        # instantiate a new TagItem
+        tag_item = TagItem()
         tag_item.ui.tagIdLabelValue.setText(tag_id)
         tag_item.ui.portLabelValue.setText(port)
         tag_item.ui.rateLabelValue.setText("-")
@@ -89,83 +82,45 @@ class MainWindow(QtWidgets.QMainWindow):
         # add the widget to the layout
         self.ui.connectedTagsScrollAreaWidgetLayout.insertWidget(0, tag_item)
 
-    def remove_widget_tag(self, key):
+    def remove_tag_widget(self, key):
         """
-        remove Tag widget from the layout
-        
-        allow to remove a widget. Key of the widget, the same used in add_widget_tag method,
-        id needed.
+        Remove a tag widget from the layout.
         """
         import sip
+        # retrieve widget from the dictionary
         widget = self.tags_widgets[key]
 
-        # remove widget from layout 
+        # remove widget and its child from the layout 
         self.ui.connectedTagsScrollAreaWidgetLayout.removeWidget(widget)
         sip.delete(widget)
 
-        # remove elements from dictionary
+        # remove element from the dictionary
         del self.tags_widgets[key]
+        
+        # remove refeernce to widget
         widget = None
         
     def about(self):
         """
-        About method
+        About method.
 
-        Method called when actionAbout is triggered
+        Method called when actionAbout is triggered.
         """
         QtWidgets.QMessageBox.about(self, "About",
                                     """ TODO """)
 
     def quit(self):
         """
-        Quit method
+        Quit method.
 
-        Method called when actionQuit is triggered
+        Method called when actionQuit is triggered.
         """
         self.close()
 
-class Logger:
-    """Logger class"""
-    def __init__(self, log_widget, scroll_area):
-        """
-        Handle the log viewer
-        """
-        self.log_widget = log_widget
-        self.scroll_area = scroll_area
-
-        # print in the logger at the initialization
-        txt = "Start"
-        self.log_out(txt)
-        
-    def add_tag(self, tag_name):
-        txt = tag_name + " connected"
-        self.log_out(txt)
-
-    def remove_tag(self, tag_name):
-        txt = tag_name + " removed"
-        self.log_out(txt)
-
-    def log_out(self, text):
-        """ Print string in the Log"""
-        
-        # get old text in log viewer
-        old_text = self.log_widget.text()
-
-        # add timestamp        
-        time_str = strftime(" [%H:%M:%S] ", localtime())
-
-        # print log
-        new_text = old_text + time_str + text + "\n"        
-        self.log_widget.setText(new_text)
-
-        # adjust scrollbar
-        scroll_bar = self.scroll_area.verticalScrollBar()
-        scroll_bar.setMaximum(1000)        
-        scroll_bar.setValue(scroll_bar.maximum())
-
-    
-class tagItem(QtWidgets.QWidget):
-    """ tagItem class """
+class TagItem(QtWidgets.QWidget):
+    """
+    Qt Widget wrapping the UI of a Tag item
+    """
     def __init__(self, parent = None):
         super().__init__(parent)
 
@@ -173,29 +128,94 @@ class tagItem(QtWidgets.QWidget):
         self.ui = Ui_tagItem()
         self.ui.setupUi(self)
 
+class Logger:
+    """
+    Logger class shows events during the execution of the viewer.
+    """
+    
+    def __init__(self, log_widget, scroll_area):
+
+        # set log widget from main window
+        self.log_widget = log_widget
+
+        # set scroll area form main window
+        self.scroll_area = scroll_area
+
+        # print welcome message
+        txt = "EVB1000 Viewer started."
+        self.write_to_log(txt)
         
-# construct a QApplication
-app = QtWidgets.QApplication(sys.argv)
+    def add_tag(self, tag_name):
+        """
+        Log a "new tag" event.
+        """
+        
+        txt = tag_name + " connected."
+        self.write_to_log(txt)
 
-# instantiate the main window and add canvas 
-gui = MainWindow()
-gui.add_canvas()
+    def remove_tag(self, tag_name):
+        """
+        Log a "removed tag" event.
+        """
+        
+        txt = tag_name + " removed."
+        self.write_to_log(txt)
 
-# add two tags (only for example)
-gui.add_widget_tag("TAG0", "Tag 0", "COM3")
-gui.add_widget_tag("TAG1", "Tag 1", "COM2")
+    def write_to_log(self, text):
+        """
+        Log the text "text" with a timestamp.
+        """
 
-# print in the log viewer (only for example)
-gui.logger.add_tag("Tag 0")
-gui.logger.add_tag("Tag 1")
-gui.logger.add_tag("Tag 2")
-gui.logger.remove_tag("Tag 0")
-gui.logger.add_tag("Tag 0")
-gui.logger.add_tag("Tag 3")
-gui.logger.add_tag("Tag 4")
+        # extract current text from the log widget
+        current_text = self.log_widget.text()
 
+        # compose new text
+        # convert local time to string
+        time_str = strftime(" [%H:%M:%S] ", localtime())
+        # 
+        new_text = current_text + time_str + text + "\n"
 
-# show the main window
-gui.show()
+        # log into the widget
+        self.log_widget.setText(new_text)
 
-sys.exit(app.exec_())
+        # scroll down text
+        self.scroll_down()
+
+    def scroll_down(self):
+        """
+        Scroll down the slider of the scroll area
+        linked to this logger
+        """
+        # extract scroll bar from the scroll area
+        scroll_bar = self.scroll_area.verticalScrollBar()
+
+        # set maximum value of the slider, 1000 is enough
+        scroll_bar.setMaximum(1000)
+        scroll_bar.setValue(scroll_bar.maximum())
+            
+if __name__ == '__main__':
+        
+    # construct a QApplication
+    app = QtWidgets.QApplication(sys.argv)
+
+    # instantiate the main window and add the Matplotlib canvas
+    gui = EVB1000ViewerMainWindow()
+    gui.add_matplotlib_canvas()
+
+    # add two tags (only for example)
+    gui.add_tag_widget("TAG0", "Tag 0", "COM3")
+    gui.add_tag_widget("TAG1", "Tag 1", "COM2")
+
+    # print in the log viewer (only for example)
+    gui.logger.add_tag("Tag 0")
+    gui.logger.add_tag("Tag 1")
+    gui.logger.add_tag("Tag 2")
+    gui.logger.remove_tag("Tag 0")
+    gui.logger.add_tag("Tag 0")
+    gui.logger.add_tag("Tag 3")
+    gui.logger.add_tag("Tag 4")
+
+    # show the main window
+    gui.show()
+    
+    sys.exit(app.exec_())
