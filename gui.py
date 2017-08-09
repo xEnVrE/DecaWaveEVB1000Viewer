@@ -115,7 +115,7 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         """
         self.close()
 
-class TagItem(QtWidgets.QWidget):
+class TagItem(QtWidgets.QFrame):
     """
     Qt Widget wrapping the UI of a Tag item
     """
