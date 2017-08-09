@@ -10,7 +10,7 @@ from matplotlib.figure import Figure
 from mpl_toolkits.mplot3d import Axes3D
 
 
-class ViewerCanvas(FigureCanvas):
+class MatplotlibViewerCanvas(FigureCanvas):
     """
     Main view containing anchors, reference frame of anchor 0
     and the estimated position of the tag(s).
