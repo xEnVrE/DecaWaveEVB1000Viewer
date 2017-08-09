@@ -1,27 +1,39 @@
+# numpy
 import numpy as np
 
-# TODO: remove me when using FigureCanvasQTAgg
-import matplotlib.pyplot as plt
+# PyQt
+from PyQt5 import QtWidgets
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+
+# matplotilb
+from matplotlib.figure import Figure
 from mpl_toolkits.mplot3d import Axes3D
 
-class ViewerCanvas:
+
+class ViewerCanvas(FigureCanvas):
     """
     Main view containing anchors, reference frame of anchor 0
     and the estimated position of the tag(s).
 
     Inherits from FigureCanvasQTAgg in order to integrate with PyQt.
     """
-    def __init__(self):
-        # TODO change with figure from inherited class FigureCanvas
-        self.fig = plt.figure()
+    def __init__(self, parent):
+        
+        # create a new figure
+        fig = Figure(dpi = 100)
+        fig.subplots_adjust(left=-0.1, right=1.1, bottom=-0.2, top=1.3)
+        
+        # call FigureCanvas constructor
+        FigureCanvas.__init__(self, fig)
 
-        # set main axes
-        self.axes = self.fig.add_subplot(111, projection='3d')
+        # set the parent of this FigureCanvas
+        self.setParent(parent)
 
-        # set labels
-        self.axes.set_xlabel("X")
-        self.axes.set_ylabel("Y")
-        self.axes.set_zlabel("Z")
+        # set size policy for the canvas
+        #FigureCanvas.setSizePolicy(self,
+        # QtWidgets.QSizePolicy.Expanding,
+        # QtWidgets.QSizePolicy.Expanding)
+        #FigureCanvas.updateGeometry(self)
 
         # empty list of anchors positions
         self.anchors = []
@@ -29,6 +41,8 @@ class ViewerCanvas:
         # common height of anchors 0, 1 and 2
         self._anchors_plane_height = 0
 
+        # setup the plot
+        self.setup_plot(fig)
 
     @property
     def anchors_plane_height(self):
@@ -37,6 +51,51 @@ class ViewerCanvas:
     @anchors_plane_height.setter
     def anchors_plane_height(self, height):
         self._anchors_plane_height = height
+
+    def setup_plot(self, figure):
+        """
+        Setup the main plot of the figure.
+        """
+
+        # add plot to the figure
+        self.axes = figure.add_subplot(111, projection = '3d')
+        
+        # set labels
+        self.axes.set_xlabel("X")
+        self.axes.set_ylabel("Y")
+        self.axes.set_zlabel("Z")
+
+        # disable drawing of grid
+        self.axes.axis('off')
+
+    def set_axes_limits(self):
+        """
+        Set axes limits.
+        """
+        self.axes.set_xlim(self.x_y_min_value, self.x_y_max_value)
+        self.axes.set_ylim(self.x_y_min_value, self.x_y_max_value)
+        self.axes.set_zlim(self.z_min_value, self.z_max_value)
+
+    def eval_figure_limits(self):
+        """
+        Evaluate figure limits using the position of the anchors.
+        """
+
+        # put all the x and y coordinates of anchors in a list
+        x_y_list = [anch.item(i) for anch in self.anchors for i in range(2)]
+
+        # eval max and min for x and y axes and add some tolerance
+        tolerance_x_y = 0.5
+        self.x_y_min_value = min(x_y_list) - tolerance_x_y
+        self.x_y_max_value = max(x_y_list) + tolerance_x_y
+
+        # set minimum z value to z with some negative tolerance
+        # because some estimate of the tag z position may be negative
+        tolerance_z = 1
+        self.z_min_value = 0 - tolerance_z / 2.0 
+        # set maximum z value to the z coordinate of the fourth anchor
+        # which is known to be the taller
+        self.z_max_value = self.anchors[3].item(2) + tolerance_z * 3.0 / 4.0
 
     def set_anchor_position(self, anchors_position):
         """
@@ -111,10 +170,10 @@ class ViewerCanvas:
         """
         self.draw_anchors()
         self.draw_data_frame_axes()
-        self.draw_ground()
+        self.draw_ground()#limits)
 
         # TODO: remove me!
-        plt.show()
+        #        plt.show()
             
     def draw_data_frame_axes(self):
         """ 
@@ -152,9 +211,9 @@ class ViewerCanvas:
         Draw the ground plane
         """
 
-        # ground plane is evaluated taking into account
-        # the position of the anchors
-        plane = Plane(self.anchors)
+        # ground plane is created taking into account
+        # the limits of the figure
+        plane = Plane(self.x_y_min_value, self.x_y_max_value)
 
         # draw ground plane
         plane.draw(self.axes)
@@ -260,19 +319,12 @@ class ReferenceFrame:
         
 class Plane:
     """
-    Represents the plane were the anchor are fixed. 
+    Represents a square plane were the anchor are fixed. 
     """
-    def __init__(self, anchors_position):
-
-        # put all the x and y coordinates of anchors in a list
-        list = [anch.item(i) for anch in anchors_position for i in range(2)]
-
-        # eval max and min and add some tolerance
-        max_value = max(list) + 0.5
-        min_value = min(list) - 0.5
+    def __init__(self, limit_min, limit_max):
 
         # sample along a grid
-        ls = np.linspace(min_value, max_value, 100)
+        ls = np.linspace(limit_min, limit_max, 100)
         self.x, self.y = np.meshgrid(ls, ls)
 
         # indeed it is a *ground* plane
@@ -290,9 +342,10 @@ class Plane:
         # draw the plane
         axes.plot_surface(self.x, self.y, self.z,\
                           color = '#19781E',  alpha=0.2, rstride=rstride, cstride=cstride)
-
-boh = ViewerCanvas()
-boh.eval_basis_change(1)
-boh.anchors_plane_height = 1
-boh.set_anchor_position([[0,0,0],[0,1,0],[2, -1, 0],[1, 2, 1]])
-boh.draw_static_objects()
+if __name__ == '__main__':
+    # do some testing
+    vc = ViewerCanvas()
+    vc.eval_basis_change(1)
+    vc.anchors_plane_height = 1
+    vc.set_anchor_position([[0,0,0],[0,1,0],[2, -1, 0],[1, 2, 1]])
+    vc.draw_static_objects()
