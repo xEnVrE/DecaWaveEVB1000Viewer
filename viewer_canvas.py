@@ -170,7 +170,7 @@ class ViewerCanvas(FigureCanvas):
         """
         self.draw_anchors()
         self.draw_data_frame_axes()
-        self.draw_ground()#limits)
+        self.draw_ground()
 
         # TODO: remove me!
         #        plt.show()
