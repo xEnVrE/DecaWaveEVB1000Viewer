@@ -24,9 +24,6 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         self.ui = Ui_EVB1000ViewerMainWindow()
         self.ui.setupUi(self)
 
-        # remove border from connectedTagsScrollAra
-        self.ui.connectedTagsScrollArea.setFrameShape(QtWidgets.QFrame.NoFrame);
-
         # connect action buttons
         self.ui.actionAbout.triggered.connect(self.about)
         self.ui.actionQuit.triggered.connect(self.quit)

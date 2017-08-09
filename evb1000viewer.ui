@@ -29,16 +29,22 @@
       <layout class="QVBoxLayout" name="connectedTagsGroupBoxLayout">
        <item>
         <widget class="QScrollArea" name="connectedTagsScrollArea">
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
          <property name="widgetResizable">
           <bool>true</bool>
          </property>
          <widget class="QWidget" name="connectedTagsScrollAreaWidget">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
           <property name="geometry">
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>274</width>
-            <height>123</height>
+            <width>276</width>
+            <height>125</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="connectedTagsScrollAreaWidgetLayout">
