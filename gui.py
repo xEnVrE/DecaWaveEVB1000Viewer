@@ -7,7 +7,7 @@ from evb1000viewer import Ui_EVB1000ViewerMainWindow
 from tag_item_ui import Ui_tagItem
 
 # Matplotlib class
-from viewer_canvas import ViewerCanvas
+from matplotlib_viewer_canvas import MatplotlibViewerCanvas
 
 # for logging
 from time import localtime, strftime
@@ -39,8 +39,8 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         Add Matplotlib canvas to the main window.
         """
         
-        # instantiate ViewerCanvas
-        canvas = ViewerCanvas(self.ui.matPlotGroupBox)
+        # instantiate MatplotlibViewerCanvas
+        canvas = MatplotlibViewerCanvas(self.ui.matPlotGroupBox)
 
         # evaluate basis change according to the z coordinate
         # of the fourth anchor
