@@ -44,10 +44,13 @@
             <x>0</x>
             <y>0</y>
             <width>276</width>
-            <height>125</height>
+            <height>143</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="connectedTagsScrollAreaWidgetLayout">
+           <property name="rightMargin">
+            <number>15</number>
+           </property>
            <item>
             <spacer name="verticalSpacer">
              <property name="orientation">
@@ -135,8 +138,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>600</width>
-            <height>108</height>
+            <width>604</width>
+            <height>106</height>
            </rect>
           </property>
           <layout class="QHBoxLayout" name="horizontalLayout">
@@ -168,7 +171,7 @@
      <x>0</x>
      <y>0</y>
      <width>648</width>
-     <height>26</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
