@@ -57,16 +57,25 @@ class Device(QThread):
     @property
     def last_data(self):
         self.data_lock.acquire()
+
         value = self._last_data
+        
         self.data_lock.release()
+
+        #TODO: decode last line received
+        # and return decoded data
 
         return value
 
     @last_data.setter
     def last_data(self, data):
         self.data_lock.acquire()
+
         self._last_data = data
+        
         self.data_lock.release()
+
+        
         
     @property
     def state(self):
@@ -94,15 +103,31 @@ class Device(QThread):
         Thread main method.
         """
 
+        # gracefully stop thread if the connection is not working
+        # TODO: signal the GUI that an I/O error occured
         if not self.connect():
             return
         
         while self.state == 'running':
             try:
-                self.last_data = self.serial.readline()
+                # attempt reception of a new line
+                line = self.serial.readline()
 
-                # signal the GUI that new data is available
-                self.new_data_available.emit(self.id)
+                # process only non null data
+                if len(line) > 0:
+
+                    # store new line received
+                    # access to last_data here may happen *before*
+                    # the GUI has requested the data related to the last
+                    # signal emission. In this case the old line is overwritten
+                    # by the new one.
+                    #
+                    # TODO: consider a buffered approach
+                    #
+                    self.last_data = line
+
+                    # signal the GUI that new data is available
+                    self.new_data_available.emit(self.id)
 
             except SerialException:
                 pass
