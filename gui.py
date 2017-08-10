@@ -34,34 +34,43 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         # empty dictionary of tags widgets
         self.tags_widgets = dict()
 
+        # empty matplotlib canvas
+        self.mpl_canvas = None
+
     def add_matplotlib_canvas(self):
         """
         Add Matplotlib canvas to the main window.
         """
         
         # instantiate MatplotlibViewerCanvas
-        canvas = MatplotlibViewerCanvas(self.ui.matPlotGroupBox)
+        frame_rate = 100.0
+        tag_positions_buffer_size = 70
+        self.mpl_canvas = MatplotlibViewerCanvas(self.ui.matPlotGroupBox,\
+                                        frame_rate,\
+                                        tag_positions_buffer_size)
 
         # evaluate basis change according to the z coordinate
         # of the fourth anchor
         anchor_3_height_z = 1
-        canvas.eval_basis_change(anchor_3_height_z)
+        self.mpl_canvas.eval_basis_change(anchor_3_height_z)
 
         #
-        canvas.anchors_plane_height = 1
+        self.mpl_canvas.anchors_plane_height = 1
 
         # set anchor positions (test)
-        canvas.set_anchor_position([[0,0,0],[0,1,0],[2, -1, 0],[1, 2, 1]])
+        self.mpl_canvas.set_anchor_position([[0,0,0],[0,1,0],[2, -1, 0],[1, 2, 1]])
 
         # eval and set figure limits
-        canvas.eval_figure_limits()
-        canvas.set_axes_limits()
+        self.mpl_canvas.eval_figure_limits()
+        self.mpl_canvas.set_axes_limits()
 
         # draw anchors, plane and reference frame of anchor 0
-        canvas.draw_static_objects()
+        self.mpl_canvas.draw_static_objects()
+
+        self.mpl_canvas.set_new_tag('tag0')
 
         # add canvas to the main window
-        self.ui.matPlotGroupBoxLayout.addWidget(canvas)
+        self.ui.matPlotGroupBoxLayout.addWidget(self.mpl_canvas)
 
     def add_tag_widget(self, key, tag_id, port):
         """
