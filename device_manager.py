@@ -22,6 +22,9 @@ import sys
 # QtWidgets contains QApplication
 from PyQt5 import QtWidgets
 
+# EVB1000 decoder
+from decoder import DataFromEVB1000
+
 class Device(QThread):
     """
     Represents an EVB1000 Tag connected through a serial port.
@@ -62,10 +65,10 @@ class Device(QThread):
         
         self.data_lock.release()
 
-        #TODO: decode last line received
-        # and return decoded data
+        # decode last line received
+        decoded = DataFromEVB1000(value)
 
-        return value
+        return decoded
 
     @last_data.setter
     def last_data(self, data):
@@ -74,8 +77,6 @@ class Device(QThread):
         self._last_data = data
         
         self.data_lock.release()
-
-        
         
     @property
     def state(self):
