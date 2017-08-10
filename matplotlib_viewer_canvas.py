@@ -8,7 +8,13 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 # matplotilb
 from matplotlib.figure import Figure
 from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.animation as animation
 
+# representation of tag position as a scatter
+from tag_position_view import TagPositionView
+
+# circle buffer
+from circle import Circle
 
 class MatplotlibViewerCanvas(FigureCanvas):
     """
@@ -17,7 +23,7 @@ class MatplotlibViewerCanvas(FigureCanvas):
 
     Inherits from FigureCanvasQTAgg in order to integrate with PyQt.
     """
-    def __init__(self, parent):
+    def __init__(self, parent, frame_rate, tag_buffer_size):
         
         # create a new figure
         fig = Figure(dpi = 100)
@@ -29,20 +35,30 @@ class MatplotlibViewerCanvas(FigureCanvas):
         # set the parent of this FigureCanvas
         self.setParent(parent)
 
-        # set size policy for the canvas
-        #FigureCanvas.setSizePolicy(self,
-        # QtWidgets.QSizePolicy.Expanding,
-        # QtWidgets.QSizePolicy.Expanding)
-        #FigureCanvas.updateGeometry(self)
-
         # empty list of anchors positions
         self.anchors = []
+
+        # empty dictionary of TagPositionView scatters
+        self.tags_position_view = dict()
 
         # common height of anchors 0, 1 and 2
         self._anchors_plane_height = 0
 
+        # save requested frame rate for animation
+        self.frame_rate = frame_rate
+
+        # save requested size of TagPositionsBuffer buffers
+        self.tag_buffer_size = tag_buffer_size
+
         # setup the plot
         self.setup_plot(fig)
+
+        # Circle class producing fake data for testing
+        self.circle = Circle(radius = 1,\
+                             size = 50,\
+                             time_step = 1.0 / self.frame_rate,\
+                             freq = 1,\
+                             z = 0.5)
 
     @property
     def anchors_plane_height(self):
@@ -67,6 +83,28 @@ class MatplotlibViewerCanvas(FigureCanvas):
 
         # disable drawing of grid
         self.axes.axis('off')
+
+        # start tags position animation
+        time_step = 1.0 / self.frame_rate * 1000
+        self.anim = animation.FuncAnimation(figure, self.update_tags_position_view, interval = time_step)
+
+    def update_tags_position_view(self, frame_number):
+        """
+        Update each tag position view in self.tags_position_view
+        """
+
+        ###########
+        # testing
+        ###########
+        # fake new data from Circle class
+        x,y,z = self.circle.step()
+        # set tag position
+        self.set_tag_position('tag0', x, y, z)
+        ###########
+
+        # update each tag position view in self.tags_position_view
+        for view_name in self.tags_position_view:
+            self.tags_position_view[view_name].update_view()
 
     def set_axes_limits(self):
         """
@@ -116,6 +154,24 @@ class MatplotlibViewerCanvas(FigureCanvas):
 
             # append to list
             self.anchors.append(np_anchor_transformed)
+
+    def set_new_tag(self, tag_name):#, tag_color):
+        """
+        Register a new tag given its name and its representing color
+        """
+        #TODO: use tag_color
+
+        # instantiate a new TagPositionView
+        self.tags_position_view[tag_name] = TagPositionView(self.axes,\
+                                                       self.tag_buffer_size)
+
+    def set_tag_position(self, tag_name, x, y, z):
+        """
+        Inform the tag position view of the tag <tag_name> that a new position [x, y, z]
+        is available.
+        """
+
+        self.tags_position_view[tag_name].new_position(x, y, z)
 
     def eval_basis_change(self, a3_z):
         """
