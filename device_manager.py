@@ -37,19 +37,23 @@ def float_to_hex_string(value):
     Transform float to a string
     containing its hexadecimal representation
     """
-
     hex_string = ''
     
     # pack as a float
     packed_value = pack('>f', value)
-    
+        
     for byte in packed_value:
         # extract string of
         # hexadecimal representation of byte
         hex_str = str(hex(byte))
-
+        
         # remove the heading '0x'
         hex_str = hex_str[2:]
+
+        # str removes padding zero
+        # it is required to insert it again
+        if len(hex_str) == 1:
+            hex_str = '0' + hex_str
 
         # append to hex_string
         hex_string += hex_str
@@ -125,6 +129,7 @@ def fake_serial_readline(self):
 
         # get new position from fake_data
         pos = fake_data.get_new_value()
+
         x = pos[0]
         y = pos[1]
         z = pos[2]
@@ -135,7 +140,6 @@ def fake_serial_readline(self):
         line += float_to_hex_string(y)
         line += ' '
         line += float_to_hex_string(z)
-        line += ' '
         
         # close line
         line += '\r\n'
@@ -236,7 +240,6 @@ class Device(QThread):
                 # attempt reception of a new line
                 line = self.serial.readline()
                 
-
                 # process only non null data
                 if len(line) > 0:
 
@@ -255,6 +258,9 @@ class Device(QThread):
 
             except SerialException:
                 pass
+
+            # test a framerate of 100Hz
+            sleep(1.0 / 100.0)
 
         if self.state == 'stopped':
             self.close()
