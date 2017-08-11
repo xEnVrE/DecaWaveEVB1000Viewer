@@ -192,7 +192,8 @@ class DeviceManager(QThread):
     """
 
     #pyqt signals are class attributes
-    new_devices_connected = pyqtSignal()
+    new_dev_connected_sig = pyqtSignal()
+    dev_removed_sig = pyqtSignal()
     
     def __init__(self, target_vid, target_pid):
 
@@ -208,6 +209,8 @@ class DeviceManager(QThread):
 
         # empty list of *newly* configured devices
         self._new_devices = []
+        # empty list of *just* removed  devices
+        self._removed_devices = []
 
         # store pid and vid for the target device of interest
         self.target_vid = target_vid
@@ -228,6 +231,21 @@ class DeviceManager(QThread):
     def new_devices(self, devs):
         self._new_devices = devs
 
+    @property
+    def removed_devices(self):
+
+        # copy new devices
+        devs = self._removed_devices
+
+        # clean _new_devices
+        self._removed_devices = []
+        
+        return devs
+
+    @removed_devices.setter
+    def removed_devices(self, devs):
+        self._removed_devices = devs
+
     def device(self, device_id):
         return self.configured_devices[device_id]
     
@@ -242,16 +260,21 @@ class DeviceManager(QThread):
                 
             # in case of new ports
             if new_ports:
+
+                print(new_ports)
                 # configure devices connected to ports in new_ports
                 self.new_devices = self.configure_devices(new_ports)
 
                 # signal GUI that new devices are available
-                self.new_devices_connected.emit()
+                self.new_dev_connected_sig.emit()
 
             # in case of removed ports
             if removed_ports:
                 # removed devices that were disconnected
-                self.remove_devices(removed_ports)
+                self.removed_devices = self.remove_devices(removed_ports)
+
+                # signal GUI that some devices were removed
+                self.dev_removed_sig.emit()
 
     def configure_devices(self, ports):
         """
@@ -274,7 +297,11 @@ class DeviceManager(QThread):
     def remove_devices(self, ports):
         """
         Remove devices whose ports were removed.
+
+        Return a list containing the removed devices.
         """
+
+        removed_devices = []
 
         # for each port change the state of the underlying thread
         # from 'running' to 'stopped' using stop_device()
@@ -282,6 +309,12 @@ class DeviceManager(QThread):
             # device id is defined as str(port.__hash__())
             device_id = str(hash(p))
             self.configured_devices[device_id].stop_device()
+            
+            # clean configured_devices dict
+            removed_device = self.configured_devices.pop(device_id)
+            removed_devices.append(removed_device)
+
+        return removed_devices
 
     def update_ports(self):
         """
@@ -320,8 +353,11 @@ class DeviceManager(QThread):
         return new_ports, removed_ports
 
     def register_new_devices_connected_slot(self, slot):
-        self.new_devices_connected.connect(slot)
+        self.new_dev_connected_sig.connect(slot)
 
+    def register_devices_removed_slot(self, slot):
+        self.dev_removed_sig.connect(slot)
+        
 class MockGUI(QThread):
     """
     Mock GUI class to test slot-signal connection
