@@ -58,7 +58,7 @@ class Device(QThread):
         self.data_lock = Lock()
 
     def __str__(self):
-        return self.port.name
+        return self.port.device
 
     @property
     def last_data(self):
