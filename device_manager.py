@@ -275,6 +275,9 @@ class DeviceManager(QThread):
                 # signal GUI that some devices were removed
                 self.dev_removed_sig.emit()
 
+            # wait some time
+            sleep(1)
+
     def configure_devices(self, ports):
         """
         Configure devices connected via serial ports in ports.
