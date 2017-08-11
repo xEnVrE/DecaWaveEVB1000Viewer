@@ -154,7 +154,7 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
                 c = self.mpl_canvas.get_tag_color(tag_id)
                 
                 # set widget label color
-                widget.tag_id_color = c.color
+                widget.tag_id_color = c.color_255
                 
             # get Tag position
             x = data['x']

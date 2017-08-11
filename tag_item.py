@@ -3,6 +3,7 @@ from tag_item_ui import Ui_tagItem
 
 # PyQt
 from PyQt5.QtWidgets import QFrame
+from PyQt5.QtGui import QColor, QPalette
 
 import sip
 
@@ -30,9 +31,6 @@ class TagItem(QFrame):
         self.tag_port = port
         # set Rate label
         self.tag_msg_rate = "-"
-
-        #
-        
 
     @property
     def is_tag_id_set(self):
@@ -116,13 +114,19 @@ class TagItem(QFrame):
     @tag_id_color.setter
     def tag_id_color(self, color):
         """
-        Set Tag ID label color. (TODO)
+        Set Tag ID label color.
         """
-        
+
+        # get rgb channel
         r = color[0]
         g = color[1]
         b = color[2]
-        pass
+
+        # set label color
+        label = self.ui.tagIdLabelValue
+        palette = QPalette()
+        palette.setColor(QPalette.WindowText, QColor(r, g, b))
+        label.setPalette(palette)
     
     @property
     def tag_port(self):
