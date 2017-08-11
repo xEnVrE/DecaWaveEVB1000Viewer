@@ -73,9 +73,9 @@ class TagItem(QFrame):
         z_str = format(z, '.3f')
 
         # set labels
-        self.xLabelValue.setText(x_str)
-        self.yLabelValue.setText(y_str)
-        self.zLabelValue.setText(z_str)
+        self.ui.xLabelValue.setText(x_str)
+        self.ui.yLabelValue.setText(y_str)
+        self.ui.zLabelValue.setText(z_str)
                 
     @property
     def tag_id(self):
