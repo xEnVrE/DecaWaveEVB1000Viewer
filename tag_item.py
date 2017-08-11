@@ -47,9 +47,25 @@ class TagItem(QFrame):
         
     @property
     def position(self):
+        """
+        Get tag position.
+        """
+
+        x = float(self.xLabelValue.text())
+        y = float(self.yLabelValue.text())
+        z = float(self.zLabelValue.text())
+        
+        return x, y, z
 
     @position.setter
-    def position(self, pos):
+    def position(self, x, y, z):
+        """
+        Set tag position.
+        """
+
+        self.xLabelValue.setText(str(x))
+        self.yLabelValue.setText(str(y))
+        self.zLabelValue.setText(str(z))
                 
     @property
     def tag_id(self):
