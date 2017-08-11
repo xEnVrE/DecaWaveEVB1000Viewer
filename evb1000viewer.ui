@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>648</width>
-    <height>432</height>
+    <width>638</width>
+    <height>451</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <widget class="QGroupBox" name="connectedTagsGroupBox">
       <property name="maximumSize">
        <size>
-        <width>300</width>
+        <width>230</width>
         <height>16777215</height>
        </size>
       </property>
@@ -43,8 +43,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>276</width>
-            <height>125</height>
+            <width>206</width>
+            <height>169</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="connectedTagsScrollAreaWidgetLayout">
@@ -138,7 +138,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>600</width>
+            <width>590</width>
             <height>108</height>
            </rect>
           </property>
@@ -183,7 +183,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>648</width>
+     <width>638</width>
      <height>26</height>
     </rect>
    </property>
@@ -202,7 +202,6 @@
    <addaction name="menuFile"/>
    <addaction name="menuHelp"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
   <action name="actionQuit">
    <property name="text">
     <string>&amp;Quit</string>
