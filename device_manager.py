@@ -25,6 +25,121 @@ from PyQt5 import QtWidgets
 # EVB1000 decoder
 from decoder import DataFromEVB1000
 
+# serial reading testing
+from struct import pack
+from trilateration_data_csv import TrilaterationData
+
+anchor_positions_sent = False
+fake_data = TrilaterationData('trilat_data.csv')
+
+def float_to_hex_string(value):
+    """
+    Transform float to a string
+    containing its hexadecimal representation
+    """
+
+    hex_string = ''
+    
+    # pack as a float
+    packed_value = pack('>f', value)
+    
+    for byte in packed_value:
+        # extract string of
+        # hexadecimal representation of byte
+        hex_str = str(hex(byte))
+
+        # remove the heading '0x'
+        hex_str = hex_str[2:]
+
+        # append to hex_string
+        hex_string += hex_str
+
+    return hex_string
+
+def fake_serial_readline(self):
+    """
+    Fake serial readline() method for testing purposes
+    """
+
+    global anchor_positions_sent
+    global fake_data
+
+    # empty line
+    line = ''
+
+    if not anchor_positions_set:
+        # set anchor position report message type
+        line += 'apr'
+        line += ' '
+        
+        # set tag id
+        line += '00'
+        line += ' '
+
+        # set anchor 0 cartesian positions
+        line += float_to_hex_string(0)
+        line += ' '
+        line += float_to_hex_string(0)
+        line += ' '
+        line += float_to_hex_string(0)
+        line += ' '
+
+        # set anchor 1 cartesian positions
+        line += float_to_hex_string(0)
+        line += ' '
+        line += float_to_hex_string(17.7758)
+        line += ' '
+        line += float_to_hex_string(0)
+        line += ' '
+
+        # set anchor 2 cartesian positions
+        line += float_to_hex_string(10.7935)
+        line += ' '
+        line += float_to_hex_string(4.8023)
+        line += ' '
+        line += float_to_hex_string(0)
+        line += ' '
+
+        # set anchor 3 cartesian positions
+        line += float_to_hex_string(4.3826)
+        line += ' '
+        line += float_to_hex_string(7.7982)
+        line += ' '
+        line += float_to_hex_string(1.4259)
+
+        # close line
+        line += '\r\n'
+
+    else:
+        # set anchor position report message type
+        line += 'tpr'
+        line += ' '
+        
+        # set tag id
+        line += '00'
+        line += ' '
+
+        # get new position from fake_data
+        pos = fake_data.get_new_value()
+        x = pos[0]
+        y = pos[1]
+        z = pos[2]
+
+        # set position
+        line += float_to_hex_string(x)
+        line += ' '
+        line += float_to_hex_string(y)
+        line += ' '
+        line += float_to_hex_string(z)
+        line += ' '
+        
+        # close line
+        line += '\r\n'
+
+    return line
+
+serial.Serial.readline = fake_serial_readline
+
 class Device(QThread):
     """
     Represents an EVB1000 Tag connected through a serial port.
@@ -116,6 +231,7 @@ class Device(QThread):
             try:
                 # attempt reception of a new line
                 line = self.serial.readline()
+                
 
                 # process only non null data
                 if len(line) > 0:
