@@ -164,13 +164,13 @@ class MatplotlibViewerCanvas(FigureCanvas):
         self.tags_position_view[tag_ID] = TagPositionView(self.axes,\
                                                           self.tag_buffer_size,\
                                                           tag_color)        
-    def set_tag_position(self, tag_name, x, y, z):
+    def set_tag_position(self, tag_ID, x, y, z):
         """
-        Inform the tag position view of the tag <tag_name> that a new position [x, y, z]
+        Inform the tag position view of the tag <tag_ID> that a new position [x, y, z]
         is available.
         """
 
-        self.tags_position_view[tag_name].new_position(x, y, z)
+        self.tags_position_view[tag_ID].new_position(x, y, z)
 
     def eval_basis_change(self, a3_z):
         """
