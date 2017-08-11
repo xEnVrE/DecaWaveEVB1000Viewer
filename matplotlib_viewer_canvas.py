@@ -155,16 +155,15 @@ class MatplotlibViewerCanvas(FigureCanvas):
             # append to list
             self.anchors.append(np_anchor_transformed)
 
-    def set_new_tag(self, tag_name):#, tag_color):
+    def set_new_tag(self, tag_name, tag_color):
         """
         Register a new tag given its name and its representing color
         """
-        #TODO: use tag_color
-
+        
         # instantiate a new TagPositionView
         self.tags_position_view[tag_name] = TagPositionView(self.axes,\
-                                                       self.tag_buffer_size)
-
+                                                            self.tag_buffer_size,\
+                                                            tag_color)        
     def set_tag_position(self, tag_name, x, y, z):
         """
         Inform the tag position view of the tag <tag_name> that a new position [x, y, z]

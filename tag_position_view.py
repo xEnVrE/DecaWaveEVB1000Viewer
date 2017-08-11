@@ -1,3 +1,4 @@
+
 # mutex
 from threading import Lock
 
@@ -9,18 +10,20 @@ class TagPositionView:
     Represents the tag position as a Matplotlib scatter object
     """
 
-    def __init__(self, axes, buffer_size):#, color):
+    def __init__(self, axes, buffer_size, color):
 
         # instantiate a scatter with no data
         self.scatter = axes.scatter(np.zeros(0),\
                                     np.zeros(0),\
-                                    np.zeros(0))
+                                    np.zeros(0),\
+                                    depthshade = 0)
 
         # instantiate a TagPositionsBuffer
         self._buffer = TagPositionsBuffer(buffer_size)
 
-        #TODO: handle scatter colors
-
+        self.color = color
+        
+        
     @property
     def buffer(self):
         return self._buffer
@@ -39,9 +42,16 @@ class TagPositionView:
         # extract new data
         x, y, z = self.buffer.get_positions()
 
+        # extract the number of elements in the buffer
+        number_of_elements = self.buffer.get_number_of_elements()
+
+        color_shade = self.color.get_color_shade(number_of_elements)
+
         # set new data
         self.scatter._offsets3d = (x, y, z)
-
+        self.scatter._edgecolor3d = color_shade
+        self.scatter._facecolor3d = color_shade
+        
 class TagPositionsBuffer:
     """
     Storage for a fixed number of tag cartesian positions.
@@ -74,6 +84,18 @@ class TagPositionsBuffer:
 
         return data_x_copy, data_y_copy, data_z_copy
 
+    def get_number_of_elements(self):
+        """
+        Return the number of elements in the buffer
+        """
+        self.data_lock.acquire()
+
+        number_of_elements = self.data_x.size
+
+        self.data_lock.release()
+
+        return number_of_elements
+    
     def add_position(self, x, y, z):
         """
         Add a new tag position to the buffer.

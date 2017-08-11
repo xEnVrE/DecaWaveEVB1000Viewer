@@ -6,6 +6,9 @@ import sys
 from evb1000viewer import Ui_EVB1000ViewerMainWindow
 from tag_item_ui import Ui_tagItem
 
+# ColorPalette
+import color_palette
+
 # Matplotlib class
 from matplotlib_viewer_canvas import MatplotlibViewerCanvas
 
@@ -37,6 +40,9 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         # empty matplotlib canvas
         self.mpl_canvas = None
 
+        # instantiate the color palette
+        self.palette = color_palette.ColorPalette()
+
     def add_matplotlib_canvas(self):
         """
         Add Matplotlib canvas to the main window.
@@ -54,12 +60,12 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         anchor_3_height_z = 1
         self.mpl_canvas.eval_basis_change(anchor_3_height_z)
 
-        #
+        #TODO add in Gui
         self.mpl_canvas.anchors_plane_height = 1
 
         # set anchor positions (test)
         self.mpl_canvas.set_anchor_position([[0,0,0],[0,1,0],[2, -1, 0],[1, 2, 1]])
-
+        
         # eval and set figure limits
         self.mpl_canvas.eval_figure_limits()
         self.mpl_canvas.set_axes_limits()
@@ -67,7 +73,9 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         # draw anchors, plane and reference frame of anchor 0
         self.mpl_canvas.draw_static_objects()
 
-        self.mpl_canvas.set_new_tag('tag0')
+        # add new tag
+        color = self.palette.get_new_color()
+        self.mpl_canvas.set_new_tag('tag0', color)
 
         # add canvas to the main window
         self.ui.matPlotGroupBoxLayout.addWidget(self.mpl_canvas)
