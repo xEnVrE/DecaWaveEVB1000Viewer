@@ -23,7 +23,7 @@ class TrilaterationData:
 
                 # populate the Tag position list with the coordinates
                 self.tag_positions.append(tag_coord)
-                tag_coords = []
+                tag_coord = []
 
             # close the csv file
             csvfile.close()
@@ -42,6 +42,6 @@ class TrilaterationData:
 
         # update the index
         self.data_index += 1
-        self.data_index % len(self.tag_positions)
+        self.data_index %= len(self.tag_positions)
 
         return coords
