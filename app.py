@@ -12,7 +12,6 @@ if __name__ == '__main__':
 
     # instantiate device_manager
     dev_man = DeviceManager(target_vid = '0403', target_pid = '6001')
-    dev_man.start()
 
     # instantiate a QApplication
     app = QApplication(sys.argv)
@@ -22,6 +21,9 @@ if __name__ == '__main__':
 
     # show the main window
     gui.show()
+
+    # start the device manager
+    dev_man.start()
     
     sys.exit(app.exec_())
 
