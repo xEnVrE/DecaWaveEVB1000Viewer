@@ -62,13 +62,17 @@ class TagItem(QFrame):
         """
         Set tag position.
         """
-        
-        # extract from tuple pos
-        x, y, z = pos
-        
-        self.ui.xLabelValue.setText(str(x))
-        self.ui.yLabelValue.setText(str(y))
-        self.ui.zLabelValue.setText(str(z))
+
+        # set the format of the coordiantes
+        # of Tag position
+        x_str = format(x, '.3f')
+        y_str = format(y, '.3f')
+        z_str = format(z, '.3f')
+
+        # set labels
+        self.xLabelValue.setText(x_str)
+        self.yLabelValue.setText(y_str)
+        self.zLabelValue.setText(z_str)
                 
     @property
     def tag_id(self):
