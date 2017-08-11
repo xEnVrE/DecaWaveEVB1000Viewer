@@ -261,7 +261,6 @@ class DeviceManager(QThread):
             # in case of new ports
             if new_ports:
 
-                print(new_ports)
                 # configure devices connected to ports in new_ports
                 self.new_devices = self.configure_devices(new_ports)
 
