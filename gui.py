@@ -109,27 +109,27 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         data = device.last_data
 
         
-        if data.decide_msg_type():
-            data_decoded = data.decoded()
+        if data.decode_msg_type():
+            data_decoded = data.decode()
 
             if data_decoded['msg_type'] == 'tpr':
-                self.handle_tag_report_rcvd(data)
+                self.handle_tag_report_rcvd(device_id, data_decoded)
             elif data_decoded['msg_type'] == 'apr':
-                self.handle_anch_report_rcvd(data)
+                self.handle_anch_report_rcvd(data_decoded)
 
-    def handle_tag_report_rcvd(self, data):
+    def handle_tag_report_rcvd(self, device_id, data):
         """        
         Handle the reception of a Tag Position Report message
         """
         
         # get the Tag widget 
-        widget = self.tags_widgets[device_id]    
+        widget = self.tags_widgets[device_id]
 
         # get Tag ID
         tag_id = data['tag_id']
 
         if self.anc_positions_set:
-            if not widget.is_tag_id_set():
+            if not widget.is_tag_id_set:
                 # pick a new color
                 c = self.palette.get_new_color()
                 
@@ -142,16 +142,16 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
                 # init new Tag inside Matplotlib canvas
                 self.mpl_canvas.set_new_tag(tag_id, c)
                 
-                # get Tag position
-                x = data['x']
-                y = data['y']
-                z = data['z']
+            # get Tag position
+            x = data['x']
+            y = data['y']
+            z = data['z']
                 
-                # update canvas with new position
-                self.mpl_canvas.set_tag_position(x, y, z)
+            # update canvas with new position
+            self.mpl_canvas.set_tag_position(tag_id, x, y, z)
                 
-                # update widget with new position
-                widget.position(x, y, z)
+            # update widget with new position
+            widget.position = (x, y, z)
 
     def handle_anch_report_rcvd(self, data):
         """
