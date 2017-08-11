@@ -1,5 +1,6 @@
 #PyQt5
 from PyQt5 import QtWidgets
+from PyQt5.QtCore import pyqtSlot
 import sys
 
 # QtDesigner generated classes
@@ -34,8 +35,10 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         # instantiate the Logger
         self.logger = Logger(self.ui.logLabel, self.ui.logScrollArea)
 
-        # store the Device Manager
+        # store the Device Manager 
         self.dev_man = device_manager
+        # register new_devices_connected slot
+        self.dev_man.register_new_devices_connected_slot(self.new_devices_connected)
         
         # empty dictionary of tags widgets
         self.tags_widgets = dict()
@@ -45,6 +48,28 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
 
         # instantiate the color palette
         self.palette = color_palette.ColorPalette()
+
+    @pyqtSlot()
+    def new_devices_connected(self):
+        """
+        Handle new devices connected.
+        """
+        # get new devices
+        devs = self.dev_man.new_devices
+
+        # register new_data_available slot for each new device
+        for dev in devs:
+            print('New device connected: ' + dev.port.device)
+            dev.register_new_data_available_slot(self.new_data_available)
+
+    @pyqtSlot(str)
+    def new_data_available(self, device_id):
+        
+        # retrieve device from device manager
+        device = self.dev_man.device(device_id)
+
+        # print new data
+        print(str(device) + '_'  + device_id + ': ' + str(device.last_data))
 
     def add_matplotlib_canvas(self):
         """
