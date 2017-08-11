@@ -51,6 +51,14 @@ class Color:
     def color(self):
         return self._color
 
+    @property
+    def color_255(self):
+        """
+        Return the color with channel bewteen 0 and 255
+        """
+        c = [channel * 255 for channel in self._color]
+        return c
+
     def get_color_shade(self, resolution = 1):
         """
         Return a list of colors sortered by 
