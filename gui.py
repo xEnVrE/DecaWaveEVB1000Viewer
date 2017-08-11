@@ -161,17 +161,6 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         """
         self.close()
 
-class TagItem(QtWidgets.QFrame):
-    """
-    Qt Widget wrapping the UI of a Tag item
-    """
-    def __init__(self, parent = None):
-        super().__init__(parent)
-
-        # Set up the user interface for tagItem
-        self.ui = Ui_tagItem()
-        self.ui.setupUi(self)
-
 class Logger:
     """
     Logger class shows events during the execution of the viewer.
