@@ -51,21 +51,24 @@ class TagItem(QFrame):
         Get tag position.
         """
 
-        x = float(self.xLabelValue.text())
-        y = float(self.yLabelValue.text())
-        z = float(self.zLabelValue.text())
+        x = float(self.ui.xLabelValue.text())
+        y = float(self.ui.yLabelValue.text())
+        z = float(self.ui.zLabelValue.text())
         
         return x, y, z
 
     @position.setter
-    def position(self, x, y, z):
+    def position(self, pos):
         """
         Set tag position.
         """
-
-        self.xLabelValue.setText(str(x))
-        self.yLabelValue.setText(str(y))
-        self.zLabelValue.setText(str(z))
+        
+        # extract from tuple pos
+        x, y, z = pos
+        
+        self.ui.xLabelValue.setText(str(x))
+        self.ui.yLabelValue.setText(str(y))
+        self.ui.zLabelValue.setText(str(z))
                 
     @property
     def tag_id(self):
@@ -77,6 +80,7 @@ class TagItem(QFrame):
         # split string to recover the numeric ID
         str_split = tag_id_str.split(' ')
 
+        # in case the tag_ID was not already set
         try:
             tag_ID = int(str_split[1])
         except ValueError:
