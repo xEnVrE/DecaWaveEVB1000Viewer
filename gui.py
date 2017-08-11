@@ -5,6 +5,8 @@ import sys
 
 # QtDesigner generated classes
 from evb1000viewer import Ui_EVB1000ViewerMainWindow
+
+# TagItem widget class
 from tag_item import TagItem
 
 # ColorPalette
@@ -40,6 +42,7 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         # register new_devices_connected slot
         if self.dev_man != None:
             self.dev_man.register_new_devices_connected_slot(self.new_devices_connected)
+            self.dev_man.register_devices_removed_slot(self.devices_removed)
         
         # empty dictionary of tags widgets
         self.tags_widgets = dict()
@@ -69,6 +72,28 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
             # add tag widget to the layout
             # device id is used as key
             self.tags_widgets[dev.id] = TagItem(self.ui, str(dev))
+
+    @pyqtSlot()
+    def devices_removed(self):
+        """
+        Handle devices removed.
+        """
+        # get removed devices
+        devs = self.dev_man.removed_devices
+
+        for dev in devs:
+
+            # recover tag widget from dictionary
+            widget = self.tags_widgets.pop(dev.id)
+            
+            # log event
+            self.logger.ev_tag_removed(widget.tag_id)
+
+            # remove widget from layout
+            widget.remove_from_layout()
+            
+            # remove refeernce to widget
+            widget = None
 
 
     @pyqtSlot(str)
@@ -116,41 +141,6 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
 
         # add canvas to the main window
         self.ui.matPlotGroupBoxLayout.addWidget(self.mpl_canvas)
-
-    def add_tag_widget(self, key, tag_id, port):
-        """
-        Add a new tag widget to the layout.
-        """
-        
-        # instantiate a new TagItem
-        tag_item = TagItem()
-        tag_item.ui.tagIdLabelValue.setText(tag_id)
-        tag_item.ui.portLabelValue.setText(port)
-        tag_item.ui.rateLabelValue.setText("-")
-
-        # add the widget to the dictionary
-        self.tags_widgets[key] = tag_item
-
-        # add the widget to the layout
-        self.ui.connectedTagsScrollAreaWidgetLayout.insertWidget(0, tag_item)
-
-    def remove_tag_widget(self, key):
-        """
-        Remove a tag widget from the layout.
-        """
-        import sip
-        # retrieve widget from the dictionary
-        widget = self.tags_widgets[key]
-
-        # remove widget and its child from the layout 
-        self.ui.connectedTagsScrollAreaWidgetLayout.removeWidget(widget)
-        sip.delete(widget)
-
-        # remove element from the dictionary
-        del self.tags_widgets[key]
-        
-        # remove refeernce to widget
-        widget = None
         
     def about(self):
         """
@@ -207,7 +197,7 @@ class Logger:
         Log a "removed tag" event.
         """
         
-        txt = "Tag " + tag_id + " removed."
+        txt = tag_id + " removed."
         self.write_to_log(txt)
 
     def write_to_log(self, text):
@@ -250,10 +240,6 @@ if __name__ == '__main__':
     # instantiate the main window and add the Matplotlib canvas
     gui = EVB1000ViewerMainWindow()
     gui.add_matplotlib_canvas()
-
-    # tag widgets testing
-    gui.add_tag_widget("TAG0", "Tag 0", "COM3")
-    gui.add_tag_widget("TAG1", "Tag 1", "COM2")
 
     # logger testing
     gui.logger.ev_tag_connected("/dev/ttyUSB0")
