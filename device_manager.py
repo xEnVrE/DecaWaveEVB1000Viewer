@@ -160,9 +160,15 @@ class Device(QThread):
         return Serial.is_open
         """
 
-        self.serial.open()
-
-        return self.serial.is_open
+        # in Windows even if the device is detected it
+        # may be not ready to be opened yet
+        while not self.serial.is_open:
+            try:
+                self.serial.open()
+            except SerialException:
+                pass
+            
+        return True
 
     def close(self):
         """
