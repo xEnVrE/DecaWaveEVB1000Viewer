@@ -62,7 +62,6 @@ class TagItem(QFrame):
         """
         Set tag position.
         """
-
         # set the format of the coordiantes
         # of Tag position
         x_str = format(x, '.3f')
