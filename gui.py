@@ -53,6 +53,9 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         # instantiate the color palette
         self.palette = color_palette.ColorPalette()
 
+        # remeber if the anchors position were already set 
+        self.anc_positions_set = False
+        
     @pyqtSlot()
     def new_devices_connected(self):
         """
@@ -102,31 +105,82 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         # retrieve device from device manager
         device = self.dev_man.device(device_id)
 
-        # print new data
-        print(str(device) + '_'  + device_id + ': ' + str(device.last_data))
+        # get last data
+        data = device.last_data
 
-    def add_matplotlib_canvas(self):
-        """
-        Add Matplotlib canvas to the main window.
+        
+        if data.decide_msg_type():
+            data_decoded = data.decoded()
+
+            if data_decoded['msg_type'] == 'tpr':
+                self.handle_tag_report_rcvd(data)
+            elif data_decoded['msg_type'] == 'apr':
+                self.handle_anch_report_rcvd(data)
+
+    def handle_tag_report_rcvd(self, data):
+        """        
+        Handle the reception of a Tag Position Report message
         """
         
+        # get the Tag widget 
+        widget = self.tags_widgets[device_id]    
+
+        # get Tag ID
+        tag_id = data['tag_id']
+
+        if self.anc_positions_set:
+            if not widget.is_tag_id_set():
+                # pick a new color
+                c = self.palette.get_new_color()
+                
+                # set widget Tag ID
+                widget.tag_id = tag_id
+                
+                # set widget label color
+                widget.tag_id_color = c.color
+                
+                # init new Tag inside Matplotlib canvas
+                self.mpl_canvas.set_new_tag(tag_id, c)
+                
+                # get Tag position
+                x = data['x']
+                y = data['y']
+                z = data['z']
+                
+                # update canvas with new position
+                self.mpl_canvas.set_tag_position(x, y, z)
+                
+                # update widget with new position
+                widget.position(x, y, z)
+
+    def handle_anch_report_rcvd(self, data):
+        """
+        Handle the reception of a Anchor Position Report message    
+        """
+
+        # extract Anchors position
+        a0 = [data['a0_x'], data['a0_y'], data['a0_z']]
+        a1 = [data['a1_x'], data['a1_y'], data['a1_z']]
+        a2 = [data['a2_x'], data['a2_y'], data['a2_z']]
+        a3 = [data['a3_x'], data['a3_y'], data['a3_z']]
+        
         # instantiate MatplotlibViewerCanvas
-        frame_rate = 100.0
-        tag_positions_buffer_size = 70
+        frame_rate = 25.0
+        tag_positions_buffer_size = 10
         self.mpl_canvas = MatplotlibViewerCanvas(self.ui.matPlotGroupBox,\
-                                        frame_rate,\
-                                        tag_positions_buffer_size)
+                                                 frame_rate,\
+                                                 tag_positions_buffer_size)
 
         # evaluate basis change according to the z coordinate
         # of the fourth anchor
-        anchor_3_height_z = 1
+        anchor_3_height_z = a3[2]
         self.mpl_canvas.eval_basis_change(anchor_3_height_z)
 
         #TODO add in Gui
         self.mpl_canvas.anchors_plane_height = 1
 
         # set anchor positions (test)
-        self.mpl_canvas.set_anchor_position([[0,0,0],[0,1,0],[2, -1, 0],[1, 2, 1]])
+        self.mpl_canvas.set_anchor_position([a0, a1, a2, a3])
         
         # eval and set figure limits
         self.mpl_canvas.eval_figure_limits()
@@ -135,12 +189,10 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         # draw anchors, plane and reference frame of anchor 0
         self.mpl_canvas.draw_static_objects()
 
-        # add new tag
-        color = self.palette.get_new_color()
-        self.mpl_canvas.set_new_tag('tag0', color)
-
         # add canvas to the main window
         self.ui.matPlotGroupBoxLayout.addWidget(self.mpl_canvas)
+
+        self.anc_positions_set = True
         
     def about(self):
         """
@@ -239,7 +291,6 @@ if __name__ == '__main__':
 
     # instantiate the main window and add the Matplotlib canvas
     gui = EVB1000ViewerMainWindow()
-    gui.add_matplotlib_canvas()
 
     # logger testing
     gui.logger.ev_tag_connected("/dev/ttyUSB0")
