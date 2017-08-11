@@ -135,18 +135,26 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         tag_id = data['tag_id']
 
         if self.anc_positions_set:
-            if not widget.is_tag_id_set:
+
+            # get a new color from pallete and set a new tag
+            # only if the tag was never connected to the serial port 
+            outcome = self.mpl_canvas.is_tag_already_exist(tag_id)
+            if not outcome:
                 # pick a new color
                 c = self.palette.get_new_color()
                 
+                # init new Tag inside Matplotlib canvas
+                self.mpl_canvas.set_new_tag(tag_id, c)
+
+            if not widget.is_tag_id_set:
                 # set widget Tag ID
                 widget.tag_id = tag_id
+
+                # take the color used for the tag
+                c = self.mpl_canvas.get_tag_color(tag_id)
                 
                 # set widget label color
                 widget.tag_id_color = c.color
-                
-                # init new Tag inside Matplotlib canvas
-                self.mpl_canvas.set_new_tag(tag_id, c)
                 
             # get Tag position
             x = data['x']

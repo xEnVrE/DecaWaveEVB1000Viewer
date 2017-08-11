@@ -154,6 +154,22 @@ class MatplotlibViewerCanvas(FigureCanvas):
         self.tags_position_view[tag_ID] = TagPositionView(self.axes,\
                                                           self.tag_buffer_size,\
                                                           tag_color)        
+    def is_tag_already_exist(self, tag_ID):
+        """
+        Return True if the Tag already allready.
+        Return False otherwise.
+        """
+
+        outcome = tag_ID in self.tags_position_view
+        return outcome
+
+    def get_tag_color(self, tag_ID):
+        """
+        Return the color used in the plot for a specific Tag
+        """
+
+        return self.tags_position_view[tag_ID].color
+        
     def set_tag_position(self, tag_ID, x, y, z):
         """
         Inform the tag position view of the tag <tag_ID> that a new position [x, y, z]
