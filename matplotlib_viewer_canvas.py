@@ -92,16 +92,6 @@ class MatplotlibViewerCanvas(FigureCanvas):
         """
         Update each tag position view in self.tags_position_view
         """
-
-        ###########
-        # testing
-        ###########
-        # fake new data from Circle class
-        x,y,z = self.circle.step()
-        # set tag position
-        self.set_tag_position('tag0', x, y, z)
-        ###########
-
         # update each tag position view in self.tags_position_view
         for view_name in self.tags_position_view:
             self.tags_position_view[view_name].update_view()
@@ -170,6 +160,16 @@ class MatplotlibViewerCanvas(FigureCanvas):
         is available.
         """
 
+        # perform homogeneous transformation on data
+        position_data_frame = np.array([[x,y,z]]).T
+        position_mpl_frame = self.vector_hom_transformation(position_data_frame)
+
+        # extract coordinates
+        x = position_mpl_frame.item(0)
+        y = position_mpl_frame.item(1)
+        z = position_mpl_frame.item(2)
+
+        # set new position
         self.tags_position_view[tag_ID].new_position(x, y, z)
 
     def eval_basis_change(self, a3_z):
