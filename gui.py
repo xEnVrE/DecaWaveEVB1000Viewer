@@ -19,7 +19,7 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
     """
     Main window class of EVB1000 Viewer
     """
-    def __init__(self):
+    def __init__(self, device_manager):
         # call QMainWindow constructor
         super().__init__()
 
@@ -33,6 +33,9 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
 
         # instantiate the Logger
         self.logger = Logger(self.ui.logLabel, self.ui.logScrollArea)
+
+        # store the Device Manager
+        self.dev_man = device_manager
         
         # empty dictionary of tags widgets
         self.tags_widgets = dict()
