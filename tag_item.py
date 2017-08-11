@@ -1,6 +1,10 @@
+# QtDesigner generated classes
 from tag_item_ui import Ui_tagItem
 
+# PyQt
 from PyQt5.QtWidgets import QFrame
+
+import sip
 
 class TagItem(QFrame):
     """
@@ -10,12 +14,15 @@ class TagItem(QFrame):
     def __init__(self, parent, port):
         super().__init__(None)
 
-        # Set up the user interface for tagItem
+        # set up the user interface for tagItem
         self.ui = Ui_tagItem()
         self.ui.setupUi(self)
 
+        # store parent
+        self.parent = parent
+
         # add widget to layout
-        parent.connectedTagsScrollAreaWidgetLayout.insertWidget(0, self)
+        self.parent.connectedTagsScrollAreaWidgetLayout.insertWidget(0, self)
         
         # set Tag ID label
         self.tag_id = "-"
@@ -30,7 +37,7 @@ class TagItem(QFrame):
         Return Tag ID.
         """
         
-        return self.ui.tagIdLabelValue.text
+        return self.ui.tagIdLabelValue.text()
 
     @tag_id.setter
     def tag_id(self, tag_id):
@@ -65,7 +72,7 @@ class TagItem(QFrame):
         Return tag port.
         """
         
-        return self.ui.portLabelValue.text
+        return self.ui.portLabelValue.text()
 
     @tag_port.setter
     def tag_port(self, port):
@@ -81,7 +88,7 @@ class TagItem(QFrame):
         Return Tag msg rate
         """
         
-        return self.ui.rateLabelValue.text
+        return self.ui.rateLabelValue.text()
 
     @tag_msg_rate.setter
     def tag_msg_rate(self, rate):
@@ -90,3 +97,12 @@ class TagItem(QFrame):
         """
 
         self.ui.rateLabelValue.setText(rate)
+
+    def remove_from_layout(self):
+        """
+        Remove widget from layout.
+        """
+        
+        # remove widget and its child from the layout 
+        self.parent.connectedTagsScrollAreaWidgetLayout.removeWidget(self)
+        sip.delete(self)
