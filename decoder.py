@@ -50,13 +50,26 @@ class DataFromEVB1000:
 
         Types implemented are
 
-        tag_position_report   := msg_type = 'tpr', range_number,  
+        tag_position_report   := msg_type = 'tpr', tag_id,  
                                  (string),         (unsigned),    
 
-                                 pos_x,   pos_y,   pos_z
-                                 (float), (float), (float)
+                                 pos_x,      pos_y,     pos_z
+                                 (float),    (float),   (float)
 
-        anch_positions_report := TODO
+        anch_positions_report := mst_type = 'apr', tag_id
+                                 (string),         (unsigned),    
+
+                                 pos_x_a0,   pos_y_a0,   pos_z_a0
+                                 (float),    (float),    (float)
+
+                                 pos_x_a1,   pos_y_a1,   pos_z_a1
+                                 (float),    (float),    (float)
+
+                                 pos_x_a2,   pos_y_a2,   pos_z_a2
+                                 (float),    (float),    (float)
+
+                                 pos_x_a3,   pos_y_a3,   pos_z_a3
+                                 (float),    (float),    (float)
 
         If the type is valid the field names of the message 
         and its structure are stored and the function return True.
@@ -75,6 +88,13 @@ class DataFromEVB1000:
         if msg_type == 'tpr':
             self.msg_fields = ['msg_type', 'tag_id', 'x', 'y', 'z']
             self.msg_structure = ['s'] + ['u'] + ['f'] * 3
+        elif msg_type == 'apr':
+            self.msg_fields = ['msg_type', 'tag_id',\
+                               'a0_x', 'a0_y', 'a0_z',
+                               'a1_x', 'a1_y', 'a1_z',
+                               'a2_x', 'a2_y', 'a2_z',
+                               'a3_x', 'a3_y', 'a3_z']
+            self.msg_structure = ['s'] + ['u'] + ['f'] * 12
         else:
             return False
 
