@@ -4,13 +4,26 @@ class ColorPalette:
     """
     Color Palette class
     """
-    def __init__(self):
+    def __init__(self, palette_name = "Matlab"):
         # define the Palette
-        self.palette = [[1,116,196],
-                        [85,164,218],
-                        [2,112,62],
-                        [236,68,34],
-                        [240,151,66]]
+        if palette_name == "Matlab":
+            palette = [[0, 113.9850, 188.9550],
+                       [216.7500, 82.8750, 24.9900],
+                       [236.8950, 176.9700, 31.8750],
+                       [125.9700, 46.9200, 141.7800],
+                       [118.8300, 171.8700, 47.9400],
+                       [76.7550, 189.9750, 237.9150],
+                       [161.9250, 19.8900, 46.9200]]
+
+        elif palette_name == "Google":
+            palette = [[2,112,62],
+                       [1,116,196],
+                       [85,164,218],
+                       [236,68,34],
+                       [240,151,66]]
+
+        self.palette = [[channel / 256  for channel in color] for color in palette]
+        
         self.index = 0
 
     def get_new_color(self):
