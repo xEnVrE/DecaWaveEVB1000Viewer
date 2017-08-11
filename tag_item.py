@@ -76,8 +76,12 @@ class TagItem(QFrame):
 
         # split string to recover the numeric ID
         str_split = tag_id_str.split(' ')
-        tag_ID = int(str_split[1])
-        
+
+        try:
+            tag_ID = int(str_split[1])
+        except ValueError:
+            tag_ID = str_split[1]
+            
         return tag_ID
 
     @tag_id.setter
