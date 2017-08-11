@@ -103,9 +103,15 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
     def new_data_available(self, device_id):
         
         # retrieve device from device manager
-        device = self.dev_man.device(device_id)
+        try:
+            device = self.dev_man.device(device_id)
+        except KeyError:
+            # this could happen if a device has been removed
+            # by the Device Manager but the associated thread
+            # hasn't stopped yet
+            return
 
-        # get last data
+            # get last data
         data = device.last_data
 
         
