@@ -75,6 +75,8 @@ class DataFromEVB1000:
         if msg_type == 'tpr':
             self.msg_fields = ['msg_type', 'tag_id', 'x', 'y', 'z']
             self.msg_structure = ['s'] + ['u'] + ['f'] * 3
+        else:
+            return False
 
         return True
 
