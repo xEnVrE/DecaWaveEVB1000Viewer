@@ -30,22 +30,49 @@ class TagItem(QFrame):
         self.tag_port = port
         # set Rate label
         self.tag_msg_rate = "-"
+
+        #
         
+
+    @property
+    def is_tag_id_set(self):
+        """
+        Return True if the tag id is already set.
+        Return False otherwise.
+        """
+        if self.tag_id == "-":
+            return False
+
+        return True
+        
+    @property
+    def position(self):
+
+    @position.setter
+    def position(self, pos):
+                
     @property
     def tag_id(self):
         """
         Return Tag ID.
         """
+        tag_id_str = self.ui.tagIdLabelValue.text()
+
+        # split string to recover the numeric ID
+        str_split = tag_id_str.split(' ')
+        tag_ID = int(str_split[1])
         
-        return self.ui.tagIdLabelValue.text()
+        return tag_ID
 
     @tag_id.setter
     def tag_id(self, tag_id):
         """
         Set Tag ID.
         """
+
+        tag_id_str = "Tag " + str(tag_id)
         
-        self.ui.tagIdLabelValue.setText(tag_id)
+        self.ui.tagIdLabelValue.setText(tag_id_str)
 
     @property
     def tag_id_color(self):
