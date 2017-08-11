@@ -20,7 +20,7 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
     """
     Main window class of EVB1000 Viewer
     """
-    def __init__(self, device_manager):
+    def __init__(self, device_manager = None):
         # call QMainWindow constructor
         super().__init__()
 
@@ -38,7 +38,8 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         # store the Device Manager 
         self.dev_man = device_manager
         # register new_devices_connected slot
-        self.dev_man.register_new_devices_connected_slot(self.new_devices_connected)
+        if self.dev_man != None:
+            self.dev_man.register_new_devices_connected_slot(self.new_devices_connected)
         
         # empty dictionary of tags widgets
         self.tags_widgets = dict()
@@ -188,20 +189,28 @@ class Logger:
         txt = "EVB1000 Viewer started."
         self.write_to_log(txt)
         
-    def add_tag(self, tag_name):
+    def ev_tag_id_recognized(self, tag_id):
         """
-        Log a "new tag" event.
+        Log a "tag id recognized" event.
         """
         
-        txt = tag_name + " connected."
+        txt = "Tag " + tag_id + " is sending data."
         self.write_to_log(txt)
 
-    def remove_tag(self, tag_name):
+    def ev_tag_connected(self, device_port):
+        """
+        Log a "new tag connected" event.
+        """
+                
+        txt = "New tag connected at " + device_port  + "."
+        self.write_to_log(txt)
+
+    def ev_tag_removed(self, tag_id):
         """
         Log a "removed tag" event.
         """
         
-        txt = tag_name + " removed."
+        txt = "Tag " + tag_id + " removed."
         self.write_to_log(txt)
 
     def write_to_log(self, text):
@@ -245,18 +254,14 @@ if __name__ == '__main__':
     gui = EVB1000ViewerMainWindow()
     gui.add_matplotlib_canvas()
 
-    # add two tags (only for example)
+    # tag widgets testing
     gui.add_tag_widget("TAG0", "Tag 0", "COM3")
     gui.add_tag_widget("TAG1", "Tag 1", "COM2")
 
-    # print in the log viewer (only for example)
-    gui.logger.add_tag("Tag 0")
-    gui.logger.add_tag("Tag 1")
-    gui.logger.add_tag("Tag 2")
-    gui.logger.remove_tag("Tag 0")
-    gui.logger.add_tag("Tag 0")
-    gui.logger.add_tag("Tag 3")
-    gui.logger.add_tag("Tag 4")
+    # logger testing
+    gui.logger.ev_tag_connected("/dev/ttyUSB0")
+    gui.logger.ev_tag_id_recognized("0")
+    gui.logger.ev_tag_removed("0")
 
     # show the main window
     gui.show()
