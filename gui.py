@@ -239,7 +239,7 @@ class Logger:
         Log a "tag id recognized" event.
         """
         
-        txt = "Tag " + tag_id + " is sending data."
+        txt = "Tag " + str(tag_id) + " is sending data."
         self.write_to_log(txt)
 
     def ev_tag_connected(self, device_port):
@@ -255,7 +255,7 @@ class Logger:
         Log a "removed tag" event.
         """
         
-        txt = tag_id + " removed."
+        txt = "Tag" + str(tag_id) + " removed."
         self.write_to_log(txt)
 
     def write_to_log(self, text):
