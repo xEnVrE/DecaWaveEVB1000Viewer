@@ -67,7 +67,11 @@ def fake_serial_readline(self):
     # empty line
     line = ''
 
-    if not anchor_positions_set:
+    if not anchor_positions_sent:
+
+        # anchor positions are now "sent"
+        anchor_positions_sent = True
+        
         # set anchor position report message type
         line += 'apr'
         line += ' '
