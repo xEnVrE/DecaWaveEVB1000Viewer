@@ -163,7 +163,7 @@
        </widget>
       </item>
       <item row="0" column="2">
-       <widget class="QLabel" name="xLabelVlaue">
+       <widget class="QLabel" name="xLabelValue">
         <property name="text">
          <string>TextLabel</string>
         </property>
