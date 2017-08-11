@@ -5,7 +5,7 @@ import sys
 
 # QtDesigner generated classes
 from evb1000viewer import Ui_EVB1000ViewerMainWindow
-from tag_item_ui import Ui_tagItem
+from tag_item import TagItem
 
 # ColorPalette
 import color_palette
@@ -58,10 +58,18 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         # get new devices
         devs = self.dev_man.new_devices
 
-        # register new_data_available slot for each new device
         for dev in devs:
-            print('New device connected: ' + dev.port.device)
+            
+            # log event
+            self.logger.ev_tag_connected(str(dev))
+
+            # register new_data_available slot
             dev.register_new_data_available_slot(self.new_data_available)
+
+            # add tag widget to the layout
+            # device id is used as key
+            self.tags_widgets[dev.id] = TagItem(self.ui, str(dev))
+
 
     @pyqtSlot(str)
     def new_data_available(self, device_id):
