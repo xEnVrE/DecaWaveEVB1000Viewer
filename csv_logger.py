@@ -24,7 +24,7 @@ class CSVLogger:
     def enabled(self):
         return self._enabled
 
-    @enable.property
+    @enabled.setter
     def enabled(self, state):
         self._enabled = state
         
@@ -40,6 +40,10 @@ class CSVLogger:
         # extract data
         data = evb1000_data.decoded
 
+        # log only Tag Position Report messages
+        if data['msg_type'] != 'tpr':
+            return 
+
         # open file descriptor in case it is closed
         #
         # file is opened in append mode so that
@@ -48,7 +52,7 @@ class CSVLogger:
         if self._file == None:
             filename = "tag_" + str(data['tag_id']) + "_" +\
                        time.strftime("%d_%m_%Y")
-            self._file = open(self.filename + '.csv', 'a')
+            self._file = open(filename + '.csv', 'a')
 
             # write header
             self.writer = csv.DictWriter(self._file, evb1000_data.msg_fields)
