@@ -2,9 +2,11 @@ import numpy as np
 
 class ColorPalette:
     """
-    Color Palette class
+    Color palette class.
     """
+    
     def __init__(self, palette_name = "Matlab"):
+        
         # define the Palette
         if palette_name == "Matlab":
             palette = [[0, 113.9850, 188.9550],
@@ -41,9 +43,11 @@ class ColorPalette:
 
 class Color:
     """
-    Color class 
+    Color class.
     """
+    
     def __init__(self, r, g, b):
+        
         # Set RGB value of the color
         self._color = [r, g, b]
 
@@ -54,15 +58,14 @@ class Color:
     @property
     def color_255(self):
         """
-        Return the color with channel bewteen 0 and 255
+        Return the color with channels bewteen 0 and 255.
         """
         c = [channel * 255 for channel in self._color]
         return c
 
     def get_color_shade(self, resolution = 1):
         """
-        Return a list of colors sortered by 
-        ascending order of the alpha channel  
+        Return a list of colors sorted by ascending alpha channel.
         """
         if resolution == 1:
             alpha_channels = [1]
@@ -71,4 +74,5 @@ class Color:
 
         # generate the shade of the color
         color_shade = [self.color + [alpha] for alpha in alpha_channels]
+        
         return color_shade
