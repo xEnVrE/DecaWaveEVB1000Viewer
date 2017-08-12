@@ -137,7 +137,7 @@ class Device(QThread):
                     #
                     
                     # decode last line received
-                    evb1000_data = DataFromEVB1000(value)
+                    evb1000_data = DataFromEVB1000(line)
 
                     # continue only if message type was decoded successfully
                     if evb1000_data.msg_type_decoded:
