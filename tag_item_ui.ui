@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>211</width>
+    <width>212</width>
     <height>283</height>
    </rect>
   </property>
@@ -208,6 +208,24 @@
    </item>
    <item>
     <layout class="QHBoxLayout" name="recordLayout">
+     <item>
+      <widget class="QLabel" name="recordingLabel">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="font">
+        <font>
+         <underline>false</underline>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color : rgb(255, 0, 0);</string>
+       </property>
+       <property name="text">
+        <string>Recording...</string>
+       </property>
+      </widget>
+     </item>
      <item>
       <spacer name="recordSpacer">
        <property name="orientation">
