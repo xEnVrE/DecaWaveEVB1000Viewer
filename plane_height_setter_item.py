@@ -4,13 +4,13 @@ from plane_height_setter_ui import Ui_planeHeightSetter
 # PyQt
 from PyQt5.QtWidgets import QWidget, QMessageBox
 
-def is_float(self, s):
+def is_float(string):
     """
     Return true if the string s can be interpreted as a float.
     """
     
     try:
-        float(s)
+        float(string)
         return True
     except ValueError:
         return False
@@ -61,10 +61,10 @@ class PlaneHeightSetterItem(QWidget):
         """
 
         # disable the set button
-        self.ui.planeHeightSetButton.setDisable(True)
+        self.ui.planeHeightSetButton.setDisabled(True)
 
         # disable the text edit widget
-        self.ui.planeHeightTextEdit.setDisable(True)
+        self.ui.planeHeightTextEdit.setDisabled(True)
         
     def planeHeightSetButton_on_click(self):
         """
