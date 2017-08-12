@@ -111,17 +111,14 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
             # hasn't stopped yet
             return
 
-            # get last data
+        # get last data
         data = device.last_data
 
-        
-        if data.decode_msg_type():
-            data_decoded = data.decode()
-
-            if data_decoded['msg_type'] == 'tpr':
-                self.handle_tag_report_rcvd(device_id, data_decoded)
-            elif data_decoded['msg_type'] == 'apr':
-                self.handle_anch_report_rcvd(data_decoded)
+        # handle according to message type
+        if data['msg_type'] == 'tpr':
+            self.handle_tag_report_rcvd(device_id, data)
+        elif data['msg_type'] == 'apr':
+            self.handle_anch_report_rcvd(data)
 
     def handle_tag_report_rcvd(self, device_id, data):
         """        
