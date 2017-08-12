@@ -198,9 +198,6 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         anchor_3_height_z = a3[2]
         self.mpl_canvas.eval_basis_change(anchor_3_height_z)
 
-        #TODO add in Gui
-        self.mpl_canvas.anchors_plane_height = 1
-
         # set anchor positions (test)
         self.mpl_canvas.set_anchor_position([a0, a1, a2, a3])
         
