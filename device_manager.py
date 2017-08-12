@@ -25,6 +25,9 @@ from PyQt5 import QtWidgets
 # EVB1000 decoder
 from decoder import DataFromEVB1000
 
+# CSV loffer
+from csv_logger import CSVLogger
+
 # serial reading testing
 from struct import pack
 from trilateration_data_csv import TrilaterationData
@@ -180,21 +183,25 @@ class Device(QThread):
         self._last_data = None
         self.data_lock = Lock()
 
+        # instantiate a new csv logger
+        self._logger = CSVLogger()
+
     def __str__(self):
         return self.port.device
+
+    @property
+    def logger(self):
+        return self._logger
 
     @property
     def last_data(self):
         self.data_lock.acquire()
 
-        value = self._last_data
+        data = self._last_data
         
         self.data_lock.release()
 
-        # decode last line received
-        decoded = DataFromEVB1000(value)
-
-        return decoded
+        return data
 
     @last_data.setter
     def last_data(self, data):
@@ -251,10 +258,20 @@ class Device(QThread):
                     #
                     # TODO: consider a buffered approach
                     #
-                    self.last_data = line
+                    
+                    # decode last line received
+                    evb1000_data = DataFromEVB1000(value)
 
-                    # signal the GUI that new data is available
-                    self.new_data_available.emit(self.id)
+                    # continue only if message type was decoded successfully
+                    if evb1000_data.msg_type_decoded:
+                        # store data
+                        self.last_data = evb1000_data.decoded
+
+                        # signal the GUI that new data is available
+                        self.new_data_available.emit(self.id)
+
+                        # log to file
+                        self.logger.log_data(evb1000_data)
 
             except SerialException:
                 pass

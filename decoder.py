@@ -44,6 +44,26 @@ class DataFromEVB1000:
         # empty msg_type
         self.msg_type = ''
 
+        # empty msg_fields
+        self._msg_fields = []
+
+        # tries to decode message type and message
+        self.msg_type_decoded = self.decode_msg_type()
+        if (self.msg_type_decoded):
+            self.decode()
+
+    @property
+    def msg_fields(self):
+        return self._msg_fields
+
+    @msg_fields.setter
+    def msg_fields(self, fields):
+        self._msg_fields = fields
+
+    @property
+    def decoded(self):
+        return self._decoded
+
     def decode_msg_type(self):
         """
         Determine the type of the message.
@@ -121,7 +141,7 @@ class DataFromEVB1000:
             decoded.append(decoder(item))
 
         # return a dictionary
-        return dict(zip(self.msg_fields, decoded))
+        self._decoded =  dict(zip(self.msg_fields, decoded))
 
 if __name__ == '__main__':
     # some testing

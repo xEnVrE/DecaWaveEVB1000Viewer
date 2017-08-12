@@ -111,17 +111,14 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
             # hasn't stopped yet
             return
 
-            # get last data
+        # get last data
         data = device.last_data
 
-        
-        if data.decode_msg_type():
-            data_decoded = data.decode()
-
-            if data_decoded['msg_type'] == 'tpr':
-                self.handle_tag_report_rcvd(device_id, data_decoded)
-            elif data_decoded['msg_type'] == 'apr':
-                self.handle_anch_report_rcvd(data_decoded)
+        # handle according to message type
+        if data['msg_type'] == 'tpr':
+            self.handle_tag_report_rcvd(device_id, data)
+        elif data['msg_type'] == 'apr':
+            self.handle_anch_report_rcvd(data)
 
     def handle_tag_report_rcvd(self, device_id, data):
         """        
@@ -134,19 +131,25 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         # get Tag ID
         tag_id = data['tag_id']
 
+        # data from tags are plotted only if the anchors position are already set
+        # and the matplotlib canvas is configured to show them
         if self.anc_positions_set:
 
-            # get a new color from pallete and set a new tag
-            # only if the tag was never connected to the serial port 
-            outcome = self.mpl_canvas.is_tag_already_exist(tag_id)
-            if not outcome:
+            # in case the Tag device with ID <tag_id> was never connected
+            # it is initialized inside mpl_canvas
+            if not self.mpl_canvas.is_tag_view(tag_id):
+
                 # pick a new color
                 c = self.palette.get_new_color()
                 
-                # init new Tag inside Matplotlib canvas
+                # initialize tag in Matplotlib canvas
                 self.mpl_canvas.set_new_tag(tag_id, c)
 
+            # these actions are performed when the *first message*
+            # arrives from *both* a newly connected tag or a tag
+            # that was connected in the past
             if not widget.is_tag_id_set:
+                
                 # set widget Tag ID
                 widget.tag_id = tag_id
 
