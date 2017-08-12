@@ -9,6 +9,8 @@ from evb1000viewer import Ui_EVB1000ViewerMainWindow
 # TagItem widget class
 from tag_item import TagItem
 
+# PlaneHeightSetterItem widget class
+from plane_height_setter_item import PlaneHeightSetterItem
 # ColorPalette
 import color_palette
 
@@ -30,6 +32,19 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         self.ui = Ui_EVB1000ViewerMainWindow()
         self.ui.setupUi(self)
 
+        # instantiate MatplotlibViewerCanvas
+        frame_rate = 25.0
+        tag_positions_buffer_size = 10
+        self.mpl_canvas = MatplotlibViewerCanvas(self.ui.matPlotGroupBox,\
+                                                 frame_rate,\
+                                                 tag_positions_buffer_size)
+
+        # instantiate PlaneHeightSetterItem widget
+        self.plane_height_setter = PlaneHeightSetterItem(self.ui, self.mpl_canvas)
+
+        # add canvas to the main window
+        self.ui.matPlotGroupBoxLayout.addWidget(self.mpl_canvas)
+        
         # connect action buttons
         self.ui.actionAbout.triggered.connect(self.about)
         self.ui.actionQuit.triggered.connect(self.quit)
@@ -43,12 +58,9 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         if self.dev_man != None:
             self.dev_man.register_new_devices_connected_slot(self.new_devices_connected)
             self.dev_man.register_devices_removed_slot(self.devices_removed)
-        
+            
         # empty dictionary of tags widgets
         self.tags_widgets = dict()
-
-        # empty matplotlib canvas
-        self.mpl_canvas = None
 
         # instantiate the color palette
         self.palette = color_palette.ColorPalette()
@@ -181,13 +193,6 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         a2 = [data['a2_x'], data['a2_y'], data['a2_z']]
         a3 = [data['a3_x'], data['a3_y'], data['a3_z']]
         
-        # instantiate MatplotlibViewerCanvas
-        frame_rate = 25.0
-        tag_positions_buffer_size = 10
-        self.mpl_canvas = MatplotlibViewerCanvas(self.ui.matPlotGroupBox,\
-                                                 frame_rate,\
-                                                 tag_positions_buffer_size)
-
         # evaluate basis change according to the z coordinate
         # of the fourth anchor
         anchor_3_height_z = a3[2]
@@ -206,9 +211,9 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         # draw anchors, plane and reference frame of anchor 0
         self.mpl_canvas.draw_static_objects()
 
-        # add canvas to the main window
-        self.ui.matPlotGroupBoxLayout.addWidget(self.mpl_canvas)
-
+        # disabe the widget
+        self.plane_height_setter.disable()
+        
         self.anc_positions_set = True
         
     def about(self):

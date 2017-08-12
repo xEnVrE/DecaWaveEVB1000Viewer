@@ -16,6 +16,9 @@ from tag_position_view import TagPositionView
 # circle buffer
 from circle import Circle
 
+# lock
+from threading import Lock
+
 class MatplotlibViewerCanvas(FigureCanvas):
     """
     Main view containing anchors, reference frame of anchor 0
@@ -43,7 +46,8 @@ class MatplotlibViewerCanvas(FigureCanvas):
 
         # common height of anchors 0, 1 and 2
         self._anchors_plane_height = 0
-
+        self.anchors_plane_height_lock = Lock()
+        
         # save requested frame rate for animation
         self.frame_rate = frame_rate
 
@@ -62,12 +66,25 @@ class MatplotlibViewerCanvas(FigureCanvas):
 
     @property
     def anchors_plane_height(self):
-        return self._anchors_plane_height
+
+        # get the anchors plane height 
+        self.anchors_plane_height_lock.acquire()
+
+        height = self._anchors_plane_height
+
+        self.anchors_plane_height_lock.release()
+        
+        return height 
 
     @anchors_plane_height.setter
     def anchors_plane_height(self, height):
+
+        self.anchors_plane_height_lock.acquire()
+
         self._anchors_plane_height = height
 
+        self.anchors_plane_height_lock.release()
+        
     def setup_plot(self, figure):
         """
         Setup the main plot of the figure.
