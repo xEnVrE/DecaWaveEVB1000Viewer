@@ -154,6 +154,10 @@ class Device(QThread):
                 pass
 
         if self.state == 'stopped':
+            # close csv file
+            self.logger.close()
+            
+            # stop thread
             self.close()
 
     def configure(self):
