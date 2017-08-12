@@ -32,6 +32,11 @@ class TagItem(QFrame):
         # set Rate label
         self.tag_msg_rate = "-"
 
+        # set coordinates
+        self.ui.xLabelValue.setText("-")
+        self.ui.yLabelValue.setText("-")
+        self.ui.zLabelValue.setText("-")
+
     @property
     def is_tag_id_set(self):
         """
@@ -160,6 +165,10 @@ class TagItem(QFrame):
 
         self.ui.rateLabelValue.setText(rate)
 
+    @property
+    def is_record_active(self):
+        return self.ui.recordCheckbox.isChecked()
+        
     def remove_from_layout(self):
         """
         Remove widget from layout.

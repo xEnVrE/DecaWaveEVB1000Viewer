@@ -45,10 +45,14 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         # add canvas to the main window
         self.ui.matPlotGroupBoxLayout.addWidget(self.mpl_canvas)
         
-        # connect action buttons
+        # connect action
         self.ui.actionAbout.triggered.connect(self.about)
         self.ui.actionQuit.triggered.connect(self.quit)
 
+        # connect buttons
+        self.ui.connectedTagsRecordButton.clicked.connect(self.connectedTagsRecordButton_on_click)
+        self.ui.connectedTagsStopButton.clicked.connect(self.connectedTagsStopButton_on_click)
+        
         # instantiate the Logger
         self.logger = Logger(self.ui.logLabel, self.ui.logScrollArea)
 
@@ -67,7 +71,26 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
 
         # remeber if the anchors position were already set 
         self.anc_positions_set = False
-        
+
+    def connectedTagsRecordButton_on_click(self):
+        """
+        Enable data record method 
+        """
+        # get all device connected
+        for device_id, tag_item in self.tags_widgets.items():
+            device = self.dev_man.device(device_id)
+            device.logger.enabled = tag_item.is_record_active
+               
+    def connectedTagsStopButton_on_click(self):
+        """
+        Stop data record method 
+        """
+
+        # get all device connected
+        for device_id, tag_item in self.tags_widgets.items():
+            device = self.dev_man.device(device_id)
+            device.logger.enabled = False
+
     @pyqtSlot()
     def new_devices_connected(self):
         """
@@ -87,7 +110,7 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
             # add tag widget to the layout
             # device id is used as key
             self.tags_widgets[dev.id] = TagItem(self.ui, str(dev))
-
+            
     @pyqtSlot()
     def devices_removed(self):
         """
@@ -198,7 +221,7 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         anchor_3_height_z = a3[2]
         self.mpl_canvas.eval_basis_change(anchor_3_height_z)
 
-        # set anchor positions (test)
+        # set anchor positions
         self.mpl_canvas.set_anchor_position([a0, a1, a2, a3])
         
         # eval and set figure limits
