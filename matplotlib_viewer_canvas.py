@@ -42,7 +42,7 @@ class MatplotlibViewerCanvas(FigureCanvas):
         self.anchors = []
 
         # empty list of anchors colors
-        self.colors = []
+        self.anchor_colors = []
 
         # empty dictionary of TagPositionView scatters
         self.tags_position_view = dict()
@@ -196,7 +196,7 @@ class MatplotlibViewerCanvas(FigureCanvas):
         Save the color of each anchor as a list.
         """
         
-        self.colors = colors
+        anchor_colors = colors
 
     
     def set_tag_position(self, tag_ID, x, y, z):
@@ -300,7 +300,7 @@ class MatplotlibViewerCanvas(FigureCanvas):
             y = self.anchors[i].item(1)
             z = self.anchors[i].item(2)
 
-            color = self.colors[i]
+            color = anchor_colors[i]
             
             cylinder_radius = 0.05
             anchor_plot = Anchor(x, y, z, cylinder_radius, color)
