@@ -29,6 +29,9 @@
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
         <widget class="QScrollArea" name="logScrollArea">
+         <property name="styleSheet">
+          <string notr="true">background: white</string>
+         </property>
          <property name="verticalScrollBarPolicy">
           <enum>Qt::ScrollBarAsNeeded</enum>
          </property>
@@ -120,6 +123,9 @@
         <width>230</width>
         <height>16777215</height>
        </size>
+      </property>
+      <property name="autoFillBackground">
+       <bool>true</bool>
       </property>
       <property name="styleSheet">
        <string notr="true"/>
