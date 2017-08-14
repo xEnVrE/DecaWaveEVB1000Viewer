@@ -21,7 +21,7 @@ class AnchItem(QGroupBox):
         self.parent = parent
 
         # add widget to layout
-        self.parent.anchorsScrollAreaWidgetLayout.insertWidget(0, self)
+        self.parent.anchorsScrollAreaWidgetLayout.addWidget(self)
 
         # set GroupoBox title
         title = "Anchor " + str(anchor_index)

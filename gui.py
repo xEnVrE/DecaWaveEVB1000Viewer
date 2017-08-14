@@ -285,7 +285,7 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
             self.mpl_canvas.draw_static_objects()
 
             # instantiate anch item widgets
-            for i in reversed(range(4)):
+            for i in range(4):
                 c = colors[i]
                 anch_widget = AnchItem(self.ui, i, coordinates[i])
                 anch_widget.color = c.color_255
