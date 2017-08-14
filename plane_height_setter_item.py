@@ -64,7 +64,7 @@ class PlaneHeightSetterItem(QWidget):
         self.ui.planeHeightSetButton.setDisabled(True)
 
         # disable the text edit widget
-        self.ui.planeHeightTextEdit.setDisabled(True)
+        self.ui.planeHeightLineEdit.setDisabled(True)
         
     def planeHeightSetButton_on_click(self):
         """
@@ -72,7 +72,7 @@ class PlaneHeightSetterItem(QWidget):
         """
 
         # get the value from the text edit widget
-        height = self.ui.planeHeightTextEdit.toPlainText()
+        height = self.ui.planeHeightLineEdit.text()
 
         # check if the value is a valid float number
         if is_float(height):

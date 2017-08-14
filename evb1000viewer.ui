@@ -43,8 +43,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>844</width>
-            <height>108</height>
+            <width>848</width>
+            <height>106</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -100,7 +100,7 @@
       <property name="maximumSize">
        <size>
         <width>230</width>
-        <height>100</height>
+        <height>200</height>
        </size>
       </property>
       <property name="title">
@@ -148,8 +148,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>202</width>
-             <height>308</height>
+             <width>208</width>
+             <height>305</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="anchorsScrollAreaWidgetLayout">
@@ -196,8 +196,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>202</width>
-             <height>271</height>
+             <width>100</width>
+             <height>30</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="connectedTagsScrollAreaWidgetLayout">
@@ -264,7 +264,7 @@
      <x>0</x>
      <y>0</y>
      <width>892</width>
-     <height>26</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
