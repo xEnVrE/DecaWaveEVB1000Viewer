@@ -284,11 +284,11 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
             # draw anchors, plane and reference frame of anchor 0
             self.mpl_canvas.draw_static_objects()
 
-            # instantiate anch item widger
+            # instantiate anch item widgets
             for i in reversed(range(4)):
                 c = colors[i]
-                widget = AnchItem(self.ui, i, coordinates[i])
-                widget.color = c.color_255
+                anch_widget = AnchItem(self.ui, i, coordinates[i])
+                anch_widget.color = c.color_255
                 
             # disabe the widget
             self.plane_height_setter.disable()
