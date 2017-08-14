@@ -269,6 +269,9 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
             self.mpl_canvas.eval_basis_change(anchor_3_height_z)
 
             # set anchor positions
+            #
+            # should be called *after* mpl_canvas.eval_basis_change
+            #
             self.mpl_canvas.set_anchor_position(coordinates)
 
             # pick a new colors for the anchors
@@ -282,6 +285,9 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
             self.mpl_canvas.set_axes_limits()
             
             # draw anchors, plane and reference frame of anchor 0
+            #
+            # should be called *after* mpl_canvas.set_anchor_colors
+            #
             self.mpl_canvas.draw_static_objects()
 
             # instantiate anch item widgets
