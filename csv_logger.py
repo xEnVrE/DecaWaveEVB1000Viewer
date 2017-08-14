@@ -65,5 +65,6 @@ class CSVLogger:
         """
         Close the file descriptor.
         """
-        self._file.close()
+        if self._file:
+            self._file.close()
 

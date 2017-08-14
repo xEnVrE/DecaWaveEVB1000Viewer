@@ -9,6 +9,9 @@ from evb1000viewer import Ui_EVB1000ViewerMainWindow
 # TagItem widget class
 from tag_item import TagItem
 
+# TagItem widget class
+from anch_item import AnchItem
+
 # PlaneHeightSetterItem widget class
 from plane_height_setter_item import PlaneHeightSetterItem
 # ColorPalette
@@ -72,24 +75,55 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         # remeber if the anchors position were already set 
         self.anc_positions_set = False
 
+        # disable Stop recording button
+        self.ui.connectedTagsStopButton.setDisabled(True)
+
+        # disable Record button
+        self.ui.connectedTagsRecordButton.setDisabled(True)
+
     def connectedTagsRecordButton_on_click(self):
         """
-        Enable data record method 
+        Enable data recording.
         """
-        # get all device connected
         for device_id, tag_item in self.tags_widgets.items():
+            # extract device
             device = self.dev_man.device(device_id)
-            device.logger.enabled = tag_item.is_record_active
-               
+
+            if tag_item.is_record_active:
+                # enable recording if the checkbox is checked
+                device.logger.enabled = True
+
+                # enable recording status label
+                tag_item.set_recording_status(True)
+
+        # disable Record button
+        self.ui.connectedTagsRecordButton.setDisabled(True)
+
+        # enable Stop button
+        self.ui.connectedTagsStopButton.setDisabled(False)
+            
     def connectedTagsStopButton_on_click(self):
         """
-        Stop data record method 
+        Stop data recording.
         """
 
-        # get all device connected
+        # disable recording on all connected device
         for device_id, tag_item in self.tags_widgets.items():
+            # extract device
             device = self.dev_man.device(device_id)
+
+            # disable recording
             device.logger.enabled = False
+
+            # enable recording status label
+            tag_item.set_recording_status(False)
+
+        # enable Record button
+        self.ui.connectedTagsRecordButton.setDisabled(False)
+
+        # disable Stop button
+        self.ui.connectedTagsStopButton.setDisabled(True)
+
 
     @pyqtSlot()
     def new_devices_connected(self):
@@ -110,6 +144,9 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
             # add tag widget to the layout
             # device id is used as key
             self.tags_widgets[dev.id] = TagItem(self.ui, str(dev))
+
+            # disable Record button
+            self.ui.connectedTagsRecordButton.setDisabled(False)
             
     @pyqtSlot()
     def devices_removed(self):
@@ -130,9 +167,18 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
             # remove widget from layout
             widget.remove_from_layout()
             
-            # remove refeernce to widget
+            # remove reference to widget
             widget = None
 
+            # disable recording
+            dev.logger.enabled = False
+
+
+        if not self.tags_widgets:
+            # if there are no devices anymore
+            # disable the Record and Stop recording buttons
+            self.ui.connectedTagsRecordButton.setDisabled(True)
+            self.ui.connectedTagsStopButton.setDisabled(True)
 
     @pyqtSlot(str)
     def new_data_available(self, device_id):
@@ -210,31 +256,44 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         Handle the reception of a Anchor Position Report message    
         """
 
-        # extract Anchors position
-        a0 = [data['a0_x'], data['a0_y'], data['a0_z']]
-        a1 = [data['a1_x'], data['a1_y'], data['a1_z']]
-        a2 = [data['a2_x'], data['a2_y'], data['a2_z']]
-        a3 = [data['a3_x'], data['a3_y'], data['a3_z']]
+        if not self.anc_positions_set:
+            # extract Anchors position
+            coordinates = [[data['a0_x'], data['a0_y'], data['a0_z']],
+                           [data['a1_x'], data['a1_y'], data['a1_z']],
+                           [data['a2_x'], data['a2_y'], data['a2_z']],
+                           [data['a3_x'], data['a3_y'], data['a3_z']]]
         
-        # evaluate basis change according to the z coordinate
-        # of the fourth anchor
-        anchor_3_height_z = a3[2]
-        self.mpl_canvas.eval_basis_change(anchor_3_height_z)
+            # evaluate basis change according to the z coordinate
+            # of the fourth anchor
+            anchor_3_height_z = a3[2]
+            self.mpl_canvas.eval_basis_change(anchor_3_height_z)
 
-        # set anchor positions
-        self.mpl_canvas.set_anchor_position([a0, a1, a2, a3])
-        
-        # eval and set figure limits
-        self.mpl_canvas.eval_figure_limits()
-        self.mpl_canvas.set_axes_limits()
+            # set anchor positions
+            self.mpl_canvas.set_anchor_position(*coordinates)
 
-        # draw anchors, plane and reference frame of anchor 0
-        self.mpl_canvas.draw_static_objects()
+            # pick a new colors for the anchors
+            colors = [self.palette.get_new_color() for i in range(4)]
+            
+            # set anchors colors
+            self.mpl_canvas.set_anchor_colors(colors)
+            
+            # eval and set figure limits
+            self.mpl_canvas.eval_figure_limits()
+            self.mpl_canvas.set_axes_limits()
+            
+            # draw anchors, plane and reference frame of anchor 0
+            self.mpl_canvas.draw_static_objects()
 
-        # disabe the widget
-        self.plane_height_setter.disable()
-        
-        self.anc_positions_set = True
+            # instantiate anch item widger
+            for i in range(4):
+                c = colors[i]
+                widget = AnchItem(self.ui, i, coordinates[i])
+                widget.color = c.color_255
+                
+            # disabe the widget
+            self.plane_height_setter.disable()
+            
+            self.anc_positions_set = True
         
     def about(self):
         """

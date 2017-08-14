@@ -280,6 +280,10 @@ class Device(QThread):
             sleep(1.0 / 100.0)
 
         if self.state == 'stopped':
+            # close csv file
+            self.logger.close()
+            
+            # stop thread
             self.close()
 
     def configure(self):

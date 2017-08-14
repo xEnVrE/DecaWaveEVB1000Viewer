@@ -25,6 +25,9 @@ class TagItem(QFrame):
         # add widget to layout
         self.parent.connectedTagsScrollAreaWidgetLayout.insertWidget(0, self)
         
+        # hide the recording label
+        self.ui.recordingLabel.setVisible(False)
+
         # set Tag ID label
         self.tag_id = "-"
         # set Port label
@@ -177,3 +180,8 @@ class TagItem(QFrame):
         # remove widget and its child from the layout 
         self.parent.connectedTagsScrollAreaWidgetLayout.removeWidget(self)
         sip.delete(self)
+
+    def set_recording_status(self, status):
+        self.ui.recordingLabel.setVisible(status)
+
+        
