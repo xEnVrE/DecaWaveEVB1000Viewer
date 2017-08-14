@@ -9,6 +9,9 @@ from evb1000viewer import Ui_EVB1000ViewerMainWindow
 # TagItem widget class
 from tag_item import TagItem
 
+# TagItem widget class
+from anch_item import AnchItem
+
 # PlaneHeightSetterItem widget class
 from plane_height_setter_item import PlaneHeightSetterItem
 # ColorPalette
@@ -253,31 +256,44 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         Handle the reception of a Anchor Position Report message    
         """
 
-        # extract Anchors position
-        a0 = [data['a0_x'], data['a0_y'], data['a0_z']]
-        a1 = [data['a1_x'], data['a1_y'], data['a1_z']]
-        a2 = [data['a2_x'], data['a2_y'], data['a2_z']]
-        a3 = [data['a3_x'], data['a3_y'], data['a3_z']]
+        if not self.anc_positions_set:
+            # extract Anchors position
+            coordinates = [[data['a0_x'], data['a0_y'], data['a0_z']],
+                           [data['a1_x'], data['a1_y'], data['a1_z']],
+                           [data['a2_x'], data['a2_y'], data['a2_z']],
+                           [data['a3_x'], data['a3_y'], data['a3_z']]]
         
-        # evaluate basis change according to the z coordinate
-        # of the fourth anchor
-        anchor_3_height_z = a3[2]
-        self.mpl_canvas.eval_basis_change(anchor_3_height_z)
+            # evaluate basis change according to the z coordinate
+            # of the fourth anchor
+            anchor_3_height_z = a3[2]
+            self.mpl_canvas.eval_basis_change(anchor_3_height_z)
 
-        # set anchor positions
-        self.mpl_canvas.set_anchor_position([a0, a1, a2, a3])
-        
-        # eval and set figure limits
-        self.mpl_canvas.eval_figure_limits()
-        self.mpl_canvas.set_axes_limits()
+            # set anchor positions
+            self.mpl_canvas.set_anchor_position(*coordinates)
 
-        # draw anchors, plane and reference frame of anchor 0
-        self.mpl_canvas.draw_static_objects()
+            # pick a new colors for the anchors
+            colors = [self.palette.get_new_color() for i in range(4)]
+            
+            # set anchors colors
+            self.mpl_canvas.set_anchor_colors(colors)
+            
+            # eval and set figure limits
+            self.mpl_canvas.eval_figure_limits()
+            self.mpl_canvas.set_axes_limits()
+            
+            # draw anchors, plane and reference frame of anchor 0
+            self.mpl_canvas.draw_static_objects()
 
-        # disabe the widget
-        self.plane_height_setter.disable()
-        
-        self.anc_positions_set = True
+            # instantiate anch item widger
+            for i in range(4):
+                c = colors[i]
+                widget = AnchItem(self.ui, i, coordinates[i])
+                widget.color = c.color_255
+                
+            # disabe the widget
+            self.plane_height_setter.disable()
+            
+            self.anc_positions_set = True
         
     def about(self):
         """

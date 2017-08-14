@@ -41,6 +41,9 @@ class MatplotlibViewerCanvas(FigureCanvas):
         # empty list of anchors positions
         self.anchors = []
 
+        # empty list of anchors colors
+        self.colors = []
+
         # empty dictionary of TagPositionView scatters
         self.tags_position_view = dict()
 
@@ -162,6 +165,8 @@ class MatplotlibViewerCanvas(FigureCanvas):
             # append to list
             self.anchors.append(np_anchor_transformed)
 
+
+            
     def set_new_tag(self, tag_ID, tag_color):
         """
         Register a new tag given its ID and its representing color
@@ -185,7 +190,15 @@ class MatplotlibViewerCanvas(FigureCanvas):
         """
 
         return self.tags_position_view[tag_ID].color
+
+    def set_anchor_colors(self, colors):
+        """
+        Save the color of each anchor as a list.
+        """
         
+        self.colors = colors
+
+    
     def set_tag_position(self, tag_ID, x, y, z):
         """
         Inform the tag position view of the tag <tag_ID> that a new position [x, y, z]
@@ -280,15 +293,17 @@ class MatplotlibViewerCanvas(FigureCanvas):
         """
         Draw each anchor as a cylinder.
         """
-        for anch in self.anchors:
+        for i in range(4):
 
             # instantiate Anchor
-            x = anch.item(0)
-            y = anch.item(1)
-            z = anch.item(2)
+            x = self.anchors[i].item(0)
+            y = self.anchors[i].item(1)
+            z = self.anchors[i].item(2)
 
+            color = self.colors[i]
+            
             cylinder_radius = 0.05
-            anchor_plot = Anchor(x, y, z, cylinder_radius)
+            anchor_plot = Anchor(x, y, z, cylinder_radius, color)
 
             # draw the cylinder represeting the anchor
             anchor_plot.draw(self.axes)
@@ -309,7 +324,7 @@ class Anchor:
     """
     Represents an anchor as a cylinder.
     """
-    def __init__(self, center_x, center_y, height, radius):
+    def __init__(self, center_x, center_y, height, radius, color):
 
         # sample along diameter of the cylinder
         x_linspace = np.linspace(-radius, radius, 100)
@@ -332,6 +347,9 @@ class Anchor:
         # of the surface of the cylinder
         self.y_neg = -y + center_y
 
+        # save color used in plot representation
+        self.color = color
+
     def draw(self, axes):
         """
         Draw a cylinder on the given axes.
@@ -340,11 +358,13 @@ class Anchor:
         rstride = 20
         cstride = 10
 
+        c = self.color.color
+        
         # draw one half of the cylinder
-        axes.plot_surface(self.x, self.y_pos, self.z,color = '#42A9FF',\
+        axes.plot_surface(self.x, self.y_pos, self.z, color = c,\
                           alpha=0.5, rstride=rstride, cstride=cstride)
         # draw the other half of the cylinder
-        axes.plot_surface(self.x, self.y_neg, self.z,color = '#42A9FF',\
+        axes.plot_surface(self.x, self.y_neg, self.z, color = c,\
                           alpha=0.5, rstride=rstride, cstride=cstride)
         
 class ReferenceFrame:
