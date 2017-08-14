@@ -196,7 +196,7 @@ class MatplotlibViewerCanvas(FigureCanvas):
         Save the color of each anchor as a list.
         """
         
-        anchor_colors = colors
+        self.anchor_colors = colors
 
     
     def set_tag_position(self, tag_ID, x, y, z):
@@ -300,7 +300,7 @@ class MatplotlibViewerCanvas(FigureCanvas):
             y = self.anchors[i].item(1)
             z = self.anchors[i].item(2)
 
-            color = anchor_colors[i]
+            color = self.anchor_colors[i]
             
             cylinder_radius = 0.05
             anchor_plot = Anchor(x, y, z, cylinder_radius, color)
