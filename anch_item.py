@@ -25,7 +25,7 @@ class AnchItem(QGroupBox):
 
         # set GroupoBox title
         title = "Anchor " + str(anchor_index)
-        self.setWindowTitle(title)
+        self.setTitle(title)
         
         x, y, z = coordinates 
 
@@ -62,3 +62,4 @@ class AnchItem(QGroupBox):
         palette = QPalette()
         palette.setColor(QPalette.WindowText, QColor(r, g, b))
         self.setPalette(palette)
+        self.setStyleSheet('QGroupBox {color:rgb(r,g,b);}')

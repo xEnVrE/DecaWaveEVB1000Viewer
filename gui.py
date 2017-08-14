@@ -265,11 +265,11 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         
             # evaluate basis change according to the z coordinate
             # of the fourth anchor
-            anchor_3_height_z = a3[2]
+            anchor_3_height_z = coordinates[2][2]
             self.mpl_canvas.eval_basis_change(anchor_3_height_z)
 
             # set anchor positions
-            self.mpl_canvas.set_anchor_position(*coordinates)
+            self.mpl_canvas.set_anchor_position(coordinates)
 
             # pick a new colors for the anchors
             colors = [self.palette.get_new_color() for i in range(4)]
@@ -285,7 +285,7 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
             self.mpl_canvas.draw_static_objects()
 
             # instantiate anch item widger
-            for i in range(4):
+            for i in reversed(range(4)):
                 c = colors[i]
                 widget = AnchItem(self.ui, i, coordinates[i])
                 widget.color = c.color_255

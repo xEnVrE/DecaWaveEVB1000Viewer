@@ -81,6 +81,14 @@
       </layout>
      </widget>
     </item>
+    <item row="1" column="0" rowspan="3">
+     <widget class="QGroupBox" name="matPlotGroupBox">
+      <property name="title">
+       <string>Plot</string>
+      </property>
+      <layout class="QVBoxLayout" name="matPlotGroupBoxLayout"/>
+     </widget>
+    </item>
     <item row="3" column="1">
      <widget class="QGroupBox" name="planeHeightGroupBox">
       <property name="sizePolicy">
@@ -105,14 +113,6 @@
       </layout>
      </widget>
     </item>
-    <item row="1" column="0" rowspan="3">
-     <widget class="QGroupBox" name="matPlotGroupBox">
-      <property name="title">
-       <string>Plot</string>
-      </property>
-      <layout class="QVBoxLayout" name="matPlotGroupBoxLayout"/>
-     </widget>
-    </item>
     <item row="2" column="1">
      <widget class="QTabWidget" name="tabWidget">
       <property name="maximumSize">
@@ -121,10 +121,13 @@
         <height>16777215</height>
        </size>
       </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
       <property name="currentIndex">
        <number>0</number>
       </property>
-      <widget class="QWidget" name="tab_6">
+      <widget class="QWidget" name="anchorsTab">
        <attribute name="title">
         <string>Anchors</string>
        </attribute>
