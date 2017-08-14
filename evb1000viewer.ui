@@ -125,15 +125,18 @@
        </size>
       </property>
       <property name="autoFillBackground">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
       <property name="styleSheet">
        <string notr="true"/>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="anchorsTab">
+       <property name="autoFillBackground">
+        <bool>true</bool>
+       </property>
        <attribute name="title">
         <string>Anchors</string>
        </attribute>
@@ -154,8 +157,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>208</width>
-             <height>305</height>
+             <width>100</width>
+             <height>30</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="anchorsScrollAreaWidgetLayout">
@@ -182,6 +185,9 @@
        </layout>
       </widget>
       <widget class="QWidget" name="connectedTagsTab">
+       <property name="autoFillBackground">
+        <bool>true</bool>
+       </property>
        <attribute name="title">
         <string>Connected Tags</string>
        </attribute>
@@ -202,8 +208,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>100</width>
-             <height>30</height>
+             <width>208</width>
+             <height>274</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="connectedTagsScrollAreaWidgetLayout">
