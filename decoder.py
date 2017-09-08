@@ -41,6 +41,9 @@ class DataFromEVB1000:
         # remove trailing '\r\n' from the line
         self.line = line[:-2]
 
+        # convert to string
+        self.line = self.line.decode('utf-8')
+
         # empty msg_type
         self.msg_type = ''
 
