@@ -25,6 +25,7 @@ from PyQt5 import QtWidgets
 
 # EVB1000 decoder
 from device.decoder import DataFromEVB1000
+from device.decoder import InvalidDataFromEVB1000
 
 # CSV logger
 from output.csv_logger import CSVLogger
@@ -140,8 +141,12 @@ class Device(QThread):
                     # TODO: consider a buffered approach
                     #
                     
-                    # decode last line received
-                    evb1000_data = DataFromEVB1000(line)
+                    # decode last line received if possible
+                    try:
+                        evb1000_data = DataFromEVB1000(line)
+                    except InvalidDataFromEVB1000:
+                        # ignore this line
+                        continue
 
                     # continue only if message type was decoded successfully
                     if evb1000_data.msg_type_decoded:
