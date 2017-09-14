@@ -17,14 +17,14 @@ class TagPositionAttitudeView:
         self.axes = axes
         
         #instantiate the reference frame
-        self.offset_rotation = rot_z(np.pi / 2) * rot_y(np.pi) 
+        self.offset_rotation = self.rot_z(np.pi / 2) * self.rot_y(np.pi) 
         self.reference_frame = ReferenceFrame(self.offset_rotation, length = 0.1)
         self.reference_frame.draw(self.axes)
 
         self.position = [0, 0, 0]
         self.attitude = [0, 0, 0]
 
-    def rot_x(self, theta):
+    def rot_x(self, rot_angle):
         """
         Rotation matrix Rx(theta)
         """
@@ -48,7 +48,7 @@ class TagPositionAttitudeView:
 
         return matrix
         
-    def rot_z(self, theta):
+    def rot_z(self, rot_angle):
         """
         Rotation matrix Rz(theta)
         """
@@ -69,7 +69,7 @@ class TagPositionAttitudeView:
         yaw = self.yaw
 
         # evaluate the RPY matrix
-        matrix_rpy = rot_z(yaw) * rot_y(pitch) * rot_x(roll)
+        matrix_rpy = self.rot_z(yaw) * self.rot_y(pitch) * self.rot_x(roll)
 
         matrix = self.offset_rotation * matrix_rpy
         return matrix

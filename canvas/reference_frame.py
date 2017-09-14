@@ -13,12 +13,10 @@ class ReferenceFrame:
     def __init__(self, rotation, translation = [0, 0, 0], length = 1):
 
         # store the rotation matrix
-        self.rotation = rotation
-        self.rotation_lock = Lock()
-        
+        self._rotation = rotation
+
         # store translation vector
-        self.translation = translation
-        self.translation_lock = Lock()
+        self._translation = translation
 
         # resolution along axis
         resolution = 100
@@ -36,47 +34,27 @@ class ReferenceFrame:
         self.axes_plot = dict()
 
     @property
-    def rotation(self, rotation):
-        
+    def rotation(self):
         # get the rotation matrix
-        self.rotation_lock.acquire()
-
-        rotation = self.rotation
-
-        self.rotation_lock.release()
+        rotation = self._rotation
         
         return rotation
 
     @rotation.setter
     def rotation(self, rotation):
-
-        self.rotation_lock.acquire()
-
-        self.rotation = rotation
-
-        self.rotation_lock.release()
+        self._rotation = rotation
 
     @property
     def translation(self):
 
         # get the translation vector
-        self.translation_lock.acquire()
+        translation = self._translation
 
-        translation = self.translation
-
-        self.translation_lock.release()
-        
         return translation 
 
     @translation.setter
     def translation(self, translation):
-
-        self.translation_lock.acquire()
-
-        self.translation = translation
-
-        self.translation_lock.release()
-
+        self._translation = translation
         
     def draw(self, axes):
         """
@@ -109,22 +87,12 @@ class ReferenceFrame:
         """
         Evaluate the homogeneus transformation
         """
-        axis =  self.axis[axis_name]        
+        axis =  self.canonical_base[axis_name]        
         
-        # translate the axis
-        self.translation_lock.acquire()
-
         for i in range(3):
             axis[i] = axis[i] + self.translation[i]
 
-        self.translation_lock.release()
-
-        # rotate axis
-        self.rotation_lock.acquire()
-
-        axis = self.rotation * self.axis[axis_name]
-
-        self.rotation_lock.release()
+        axis = self.rotation * self.canonical_base[axis_name]
 
         return axis
         
@@ -142,7 +110,7 @@ class ReferenceFrame:
 
         # draw axis
         self.axes_plot[axis_name] = axes.plot(axis[0].A1, axis[1].A1, axis[2].A1,\
-                                              color = self.color[axis_name], alpha=alpha,
+                                              color = self.colors[axis_name], alpha=alpha,
                                               linewidth = linewidth)
 
     def update_axis(self, axis_name):
