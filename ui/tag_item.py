@@ -1,5 +1,5 @@
 # QtDesigner generated classes
-from tag_item_ui import Ui_tagItem
+from ui.tag_item_ui import Ui_tagItem
 
 # PyQt
 from PyQt5.QtWidgets import QFrame

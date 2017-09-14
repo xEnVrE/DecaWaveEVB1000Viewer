@@ -2,7 +2,7 @@ import csv
 import time
 
 # EVB1000 decoder
-from decoder import DataFromEVB1000
+from device.decoder import DataFromEVB1000
 
 class CSVLogger:
     """

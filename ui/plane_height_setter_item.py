@@ -1,5 +1,5 @@
 # QtDesigner generated classes
-from plane_height_setter_ui import Ui_planeHeightSetter
+from ui.plane_height_setter_ui import Ui_planeHeightSetter
 
 # PyQt
 from PyQt5.QtWidgets import QWidget, QMessageBox

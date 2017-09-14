@@ -4,21 +4,21 @@ from PyQt5.QtCore import pyqtSlot
 import sys
 
 # QtDesigner generated classes
-from evb1000viewer import Ui_EVB1000ViewerMainWindow
+from ui.evb1000viewer import Ui_EVB1000ViewerMainWindow
 
 # TagItem widget class
-from tag_item import TagItem
+from ui.tag_item import TagItem
 
 # TagItem widget class
-from anch_item import AnchItem
+from ui.anch_item import AnchItem
 
 # PlaneHeightSetterItem widget class
-from plane_height_setter_item import PlaneHeightSetterItem
+from ui.plane_height_setter_item import PlaneHeightSetterItem
 # ColorPalette
-import color_palette
+import ui.color_palette
 
 # Matplotlib class
-from matplotlib_viewer_canvas import MatplotlibViewerCanvas
+from canvas.matplotlib_viewer_canvas import MatplotlibViewerCanvas
 
 # for logging
 from time import localtime, strftime
@@ -70,7 +70,7 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         self.tags_widgets = dict()
 
         # instantiate the color palette
-        self.palette = color_palette.ColorPalette()
+        self.palette = ui.color_palette.ColorPalette()
 
         # remeber if the anchors position were already set 
         self.anc_positions_set = False

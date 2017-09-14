@@ -2,11 +2,11 @@
 import sys
 
 # GUI
-from gui import EVB1000ViewerMainWindow
+from ui.gui import EVB1000ViewerMainWindow
 from PyQt5.QtWidgets import QApplication
 
 # DeviceManager
-from device_manager import DeviceManager
+from device.device_manager import DeviceManager
 
 if __name__ == '__main__':
 

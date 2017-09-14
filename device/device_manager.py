@@ -23,10 +23,10 @@ import sys
 from PyQt5 import QtWidgets
 
 # EVB1000 decoder
-from decoder import DataFromEVB1000
+from device.decoder import DataFromEVB1000
 
 # CSV loffer
-from csv_logger import CSVLogger
+from output.csv_logger import CSVLogger
 
 class Device(QThread):
     """

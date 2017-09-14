@@ -11,10 +11,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.animation as animation
 
 # representation of tag position as a scatter
-from tag_position_view import TagPositionView
-
-# circle buffer
-from circle import Circle
+from canvas.tag_position_view import TagPositionView
 
 # lock
 from threading import Lock
@@ -59,13 +56,6 @@ class MatplotlibViewerCanvas(FigureCanvas):
 
         # setup the plot
         self.setup_plot(fig)
-
-        # Circle class producing fake data for testing
-        self.circle = Circle(radius = 1,\
-                             size = 50,\
-                             time_step = 1.0 / self.frame_rate,\
-                             freq = 1,\
-                             z = 0.5)
 
     @property
     def anchors_plane_height(self):

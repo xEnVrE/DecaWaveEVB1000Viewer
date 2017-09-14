@@ -1,5 +1,5 @@
 # QtDesigner generated classes
-from anchor_item_ui import Ui_anchItem
+from ui.anchor_item_ui import Ui_anchItem
 
 # PyQt
 from PyQt5.QtWidgets import QGroupBox
