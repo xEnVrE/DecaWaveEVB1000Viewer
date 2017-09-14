@@ -1,10 +1,94 @@
-
 # mutex
 from threading import Lock
 
 # numpy
 import numpy as np
 
+# reference frame
+from canvas.reference_frame import ReferenceFrame
+
+class TagPositionAttitudeView:
+    """
+    Represents the tag position and attitude as a Matplotlib plotter object
+    """
+    def __init__(self, axes, color):
+
+        # save axes
+        self.axes = axes
+        
+        #instantiate the reference frame
+        self.offset_rotation = rot_z(np.pi / 2) * rot_y(np.pi) 
+        self.reference_frame = ReferenceFrame(self.offset_rotation, length = 0.1)
+        self.reference_frame.draw(self.axes)
+
+        self.position = [0, 0, 0]
+        self.attitude = [0, 0, 0]
+
+    def rot_x(self, theta):
+        """
+        Rotation matrix Rx(theta)
+        """
+        
+        matrix = np.matrix([[1, 0, 0],
+                            [0, np.cos(rot_angle), -np.sin(rot_angle)],
+                            [0, np.sin(rot_angle), np.cos(rot_angle)]])
+
+        return matrix
+
+
+        
+    def rot_y(self, rot_angle):
+        """
+        Rotation matrix Ry(theta)
+        """
+        
+        matrix = np.matrix([[np.cos(rot_angle), 0, np.sin(rot_angle)],
+                            [0, 1, 0],
+                            [-np.sin(rot_angle), 0, np.cos(rot_angle)]])
+
+        return matrix
+        
+    def rot_z(self, theta):
+        """
+        Rotation matrix Rz(theta)
+        """
+        
+        matrix = np.matrix([[np.cos(rot_angle), -np.sin(rot_angle), 0],
+                            [np.sin(rot_angle), np.cos(rot_angle), 0],
+                            [0, 0, 1]])
+
+        return matrix
+
+        
+    def rotation_matrix(self):
+        """
+        Return the rotation matrix
+        """
+        roll = self.roll
+        pitch = self.pitch
+        yaw = self.yaw
+
+        # evaluate the RPY matrix
+        matrix_rpy = rot_z(yaw) * rot_y(pitch) * rot_x(roll)
+
+        matrix = self.offset_rotation * matrix_rpy
+        return matrix
+
+    def new_position(self, x, y, z, roll, pitch, yaw):
+        """
+        Add a new tag pose (cartesian position and attitude) 
+        """
+        self.position = [x, y, z]
+        self.attitude = [roll, pitch, yaw]
+    
+    def update_view(self):
+        """
+        Update the reference frame with current data.
+        """
+        self.reference_frame.translation = self.position
+        self.reference_frame.rotation = self.rotation_matrix()
+        self.reference_frame.update()
+        
 class TagPositionView:
     """
     Represents the tag position as a Matplotlib scatter object
