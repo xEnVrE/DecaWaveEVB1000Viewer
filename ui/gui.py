@@ -49,7 +49,6 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         self.ui.matPlotGroupBoxLayout.addWidget(self.mpl_canvas)
         
         # connect action
-        self.ui.actionAbout.triggered.connect(self.about)
         self.ui.actionQuit.triggered.connect(self.quit)
 
         # connect buttons
@@ -301,15 +300,6 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
             
             self.anc_positions_set = True
         
-    def about(self):
-        """
-        About method.
-
-        Method called when actionAbout is triggered.
-        """
-        QtWidgets.QMessageBox.about(self, "About",
-                                    """ TODO """)
-
     def quit(self):
         """
         Quit method.
