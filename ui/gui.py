@@ -200,6 +200,62 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         elif data['msg_type'] == 'apr':
             self.handle_anch_report_rcvd(data)
 
+    def handle_tag_estimated_report_rcvd(self, device_id, data):
+        """        
+        Handle the reception of a Tag Position Report message from Kalman filter
+        """
+        
+        # get the Tag widget 
+        widget = self.tags_widgets[device_id]
+
+        # get Tag ID
+        tag_id = data['tag_id']
+
+        # data from tags are plotted only if the anchors position are already set
+        # and the matplotlib canvas is configured to show them
+        if self.anc_positions_set:
+
+            # in case the Tag device with ID <tag_id> was never connected
+            # it is initialized inside mpl_canvas
+            if not self.mpl_canvas.is_tag_view(tag_id):
+
+                # pick a new color
+                c = self.palette.get_new_color()
+                
+                # initialize tag in Matplotlib canvas
+                self.mpl_canvas.set_new_tag(tag_id, c)
+
+            # these actions are performed when the *first message*
+            # arrives from *both* a newly connected tag or a tag
+            # that was connected in the past
+            if not widget.is_tag_id_set:
+                
+                # set widget Tag ID
+                widget.tag_id = tag_id
+
+                # take the color used for the tag
+                c = self.mpl_canvas.get_tag_color(tag_id)
+                
+                # set widget label color
+                widget.tag_id_color = c.color_255
+                
+            # get Tag position
+            x = data['x']
+            y = data['y']
+            z = data['z']
+
+            # get Tag attitude
+            roll = data['roll']
+            pitch = data['pitch']
+            yaw = data['yaw']
+            
+            # update canvas with new position
+            self.mpl_canvas.set_tag_estimated_pose(tag_id, x, y, z, roll, pitch, yaw)
+                
+            # update widget with new position
+            widget.position = (x, y, z)
+
+            
     def handle_tag_report_rcvd(self, device_id, data):
         """        
         Handle the reception of a Tag Position Report message
@@ -245,7 +301,7 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
             z = data['z']
                 
             # update canvas with new position
-            self.mpl_canvas.set_tag_position(tag_id, x, y, z)
+            self.mpl_canvas.set_tag_raw_position(tag_id, x, y, z)
                 
             # update widget with new position
             widget.position = (x, y, z)
