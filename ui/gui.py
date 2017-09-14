@@ -42,8 +42,11 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
                                                  frame_rate,\
                                                  tag_positions_buffer_size)
 
+        # instantiate the Logger
+        self.logger = Logger(self.ui.logLabel, self.ui.logScrollArea)
+
         # instantiate PlaneHeightSetterItem widget
-        self.plane_height_setter = PlaneHeightSetterItem(self.ui, self.mpl_canvas)
+        self.plane_height_setter = PlaneHeightSetterItem(self.ui, self.mpl_canvas, self.logger)
 
         # add canvas to the main window
         self.ui.matPlotGroupBoxLayout.addWidget(self.mpl_canvas)
@@ -55,9 +58,6 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         self.ui.connectedTagsRecordButton.clicked.connect(self.connectedTagsRecordButton_on_click)
         self.ui.connectedTagsStopButton.clicked.connect(self.connectedTagsStopButton_on_click)
         
-        # instantiate the Logger
-        self.logger = Logger(self.ui.logLabel, self.ui.logScrollArea)
-
         # store the Device Manager 
         self.dev_man = device_manager
         # register new_devices_connected slot
@@ -323,6 +323,14 @@ class Logger:
 
         # print welcome message
         txt = "EVB1000 Viewer started."
+        self.write_to_log(txt)
+
+    def ev_plane_height_set(self, height):
+        """
+        Log a "anchors commmon plane height set" event.
+        """
+
+        txt = "Height of the plane where anchors A0, A1 and A2 are placed set to " + str(height) + " meters ."
         self.write_to_log(txt)
         
     def ev_tag_id_recognized(self, tag_id):

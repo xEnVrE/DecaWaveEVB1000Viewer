@@ -21,8 +21,11 @@ class PlaneHeightSetterItem(QWidget):
     Qt Widget wrapping the UI of a PlaneHeightSetter.
     """
     
-    def __init__(self, parent, mpl_canvas):
+    def __init__(self, parent, mpl_canvas, logger):
         super().__init__(None)
+
+        # set a reference to the logger
+        self.logger = logger
 
         # set up the user interface for planeHeightSetterItem
         self.ui = Ui_planeHeightSetter()
@@ -78,7 +81,10 @@ class PlaneHeightSetterItem(QWidget):
         if is_float(height):
             h = float(height)
             if h >= 0:
+                # inform the canvas that the plane height was set
                 self.mpl_canvas.anchors_plane_height = h
+                # inform the user that the plane height was set succesfully
+                self.logger.ev_plane_height_set(h)
                 return
 
         # print the error message
