@@ -166,7 +166,7 @@ class TagItem(QFrame):
         Set Tag msg rate
         """
 
-        self.ui.rateLabelValue.setText(rate)
+        #self.ui.rateLabelValue.setText(rate)
 
     @property
     def is_record_active(self):
