@@ -259,7 +259,7 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
                 self.mpl_canvas.set_tag_raw_position(tag_id, x, y, z)
             elif data['msg_type'] == 'kmf':
                 # update canvas with new estimated position and attitude␇
-                self.mpl_cavas.set_tag_estimated_pose(tag_id, x, y, z, roll, pitch, yaw):
+                self.mpl_cavas.set_tag_estimated_pose(tag_id, x, y, z, roll, pitch, yaw)
             
             if data['msg_type'] == 'tpr':
                 # update widget with new position
