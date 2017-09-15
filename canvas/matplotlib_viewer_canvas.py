@@ -221,7 +221,7 @@ class MatplotlibViewerCanvas(FigureCanvas):
         z = position_mpl_frame.item(2)
 
         # set new position
-        self.tags_position_attitude_view[tag_ID].new_position(x, y, z, roll, pitch, yaw)
+        self.tags_position_attitude_view[tag_ID].new_pose(x, y, z, roll, pitch, yaw)
         
     def set_tag_raw_position(self, tag_ID, x, y, z):
         """
