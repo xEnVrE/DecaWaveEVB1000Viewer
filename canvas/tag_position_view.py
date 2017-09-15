@@ -9,26 +9,34 @@ from canvas.reference_frame import ReferenceFrame
 
 class TagPositionAttitudeView:
     """
-    Represents the tag position and attitude as a Matplotlib plotter object
+    Represents the tag position and attitude as a Matplotlib plot
     """
     def __init__(self, axes, color):
 
-        # save axes
+        # save matplotlib axes
         self.axes = axes
         
-        #instantiate the reference frame
-        self.offset_rotation = self.rot_z(np.pi / 2) * self.rot_y(np.pi) 
+        #instantiate the reference frame used to represent the tag
+
+        # this is a constant offset that take into account the attitude of
+        # the DecaWave Tag-One body reference frame w.r.t to the ground
+        self.offset_rotation = self.rot_z(np.pi / 2) * self.rot_y(np.pi)
+        # TODO:
+        # pass the color to the RefernceFrame constructor
         self.reference_frame = ReferenceFrame(self.offset_rotation, length = 0.1)
+        # draw the reference frame for the first time
         self.reference_frame.draw(self.axes)
 
+        # default reference frame origin 
         self.position = [0, 0, 0]
+        # default reference frame attitude (R = P = Y = 0)
         self.attitude = [0, 0, 0]
 
     def rot_x(self, rot_angle):
         """
-        Rotation matrix Rx(theta)
+        Rotation matrix by rot_angle (rad) about x-axis 
         """
-        
+
         matrix = np.matrix([[1, 0, 0],
                             [0, np.cos(rot_angle), -np.sin(rot_angle)],
                             [0, np.sin(rot_angle), np.cos(rot_angle)]])
@@ -39,7 +47,7 @@ class TagPositionAttitudeView:
         
     def rot_y(self, rot_angle):
         """
-        Rotation matrix Ry(theta)
+        Rotation matrix by rot_angle (rad) about y-axis 
         """
         
         matrix = np.matrix([[np.cos(rot_angle), 0, np.sin(rot_angle)],
@@ -50,7 +58,7 @@ class TagPositionAttitudeView:
         
     def rot_z(self, rot_angle):
         """
-        Rotation matrix Rz(theta)
+        Rotation matrix by rot_angle (rad) about z-axis 
         """
         
         matrix = np.matrix([[np.cos(rot_angle), -np.sin(rot_angle), 0],
@@ -58,23 +66,20 @@ class TagPositionAttitudeView:
                             [0, 0, 1]])
 
         return matrix
-
         
     def rotation_matrix(self):
         """
-        Return the rotation matrix
+        Return the composition of three rotation M = RotZ(Y) . RotY(P) . RotX(R)
         """
-        roll = self.roll
-        pitch = self.pitch
-        yaw = self.yaw
-
         # evaluate the RPY matrix
-        matrix_rpy = self.rot_z(yaw) * self.rot_y(pitch) * self.rot_x(roll)
+        matrix_rpy = self.rot_z(self.yaw) * self.rot_y(self.pitch) * self.rot_x(self.roll)
 
+        # compose with constant offset rotation
         matrix = self.offset_rotation * matrix_rpy
+        
         return matrix
 
-    def new_position(self, x, y, z, roll, pitch, yaw):
+    def new_pose(self, x, y, z, roll, pitch, yaw):
         """
         Add a new tag pose (cartesian position and attitude) 
         """
