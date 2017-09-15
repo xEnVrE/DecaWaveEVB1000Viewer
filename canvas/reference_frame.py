@@ -63,7 +63,7 @@ class ReferenceFrame:
 
     @translation.setter
     def translation(self, translation):
-        set the translation vector
+        # set the translation vector
         self._translation = translation
 
     def transform_axis(self, axis_name):
