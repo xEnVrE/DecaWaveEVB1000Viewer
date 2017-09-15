@@ -45,7 +45,7 @@ class MatplotlibViewerCanvas(FigureCanvas):
         self.tags_position_view = dict()
 
         # common height of anchors 0, 1 and 2
-        self._anchors_plane_height = 0
+        self._anchors_plane_height = -1
         self.anchors_plane_height_lock = Lock()
         
         # save requested frame rate for animation
@@ -174,6 +174,9 @@ class MatplotlibViewerCanvas(FigureCanvas):
 
         return tag_ID in self.tags_position_view
         
+    def is_plane_height_set(self):
+        return self.anchors_plane_height >= 0
+
     def get_tag_color(self, tag_ID):
         """
         Return the color used in the plot for a specific Tag

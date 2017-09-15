@@ -23,6 +23,8 @@ from canvas.matplotlib_viewer_canvas import MatplotlibViewerCanvas
 # for logging
 from time import localtime, strftime
 
+t = 0
+
 class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
     """
     Main window class of EVB1000 Viewer
@@ -255,7 +257,9 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         Handle the reception of a Anchor Position Report message    
         """
 
-        if not self.anc_positions_set:
+        # if the anchors position are not set yet and the common plane height is set
+        # by the user draw the anchors
+        if not self.anc_positions_set and self.mpl_canvas.is_plane_height_set():
             # extract Anchors position
             coordinates = [[data['a0_x'], data['a0_y'], data['a0_z']],
                            [data['a1_x'], data['a1_y'], data['a1_z']],
@@ -290,7 +294,7 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
             self.mpl_canvas.draw_static_objects()
 
             # instantiate anch item widgets
-            for i in range(4):
+            for i in reversed(range(4)):
                 c = colors[i]
                 anch_widget = AnchItem(self.ui, i, coordinates[i])
                 anch_widget.color = c.color_255
