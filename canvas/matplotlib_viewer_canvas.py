@@ -179,6 +179,9 @@ class MatplotlibViewerCanvas(FigureCanvas):
         """
         Return True if the a TagPositionView for tag <tag_ID> already exists.
         Return False otherwise.
+
+        Note that the existance of a TagPositionView for a tag also implies
+        the existance of a TagPositionAttitudeView.
         """
 
         return tag_ID in self.tags_position_view
