@@ -73,17 +73,17 @@ class ReferenceFrame:
         """
 
         # extract the axis depending on its name
-        axis =  self.canonical_base[axis_name]        
+        axis = [row[:] for row in self.canonical_base[axis_name]]
+        
+        # rotate the axis
+        axis_rotated = self.rotation * axis
 
         # loop over the cartesian coordinates
         # and add the translation
         for i in range(3):
-            axis[i] = axis[i] + self.translation[i]
+            axis_rotated[i] = axis_rotated[i] + self.translation[i]
 
-        # rotate the axis
-        axis = self.rotation * self.canonical_base[axis_name]
-
-        return axis
+        return axis_rotated
         
     def draw(self, axes):
         """
@@ -106,14 +106,18 @@ class ReferenceFrame:
         axis = self.transform_axis(axis_name)
 
         # draw axis
-        self.axes_plot[axis_name] = axes.plot(axis[0].A1, axis[1].A1, axis[2].A1,\
+        line, = axes.plot(axis[0].A1, axis[1].A1, axis[2].A1,\
                                               color = self.colors[axis_name],\
                                               alpha=alpha,\
                                               linewidth = linewidth)
+
+        self.axes_plot[axis_name] = line
+        
     def update(self):
         """
         Update the reference frame.
         """
+
         # x axis (direction [1, 0, 0] expressed in Matplotlib frame)
         self.update_axis('x')
         

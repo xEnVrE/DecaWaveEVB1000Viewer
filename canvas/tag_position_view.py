@@ -72,7 +72,10 @@ class TagPositionAttitudeView:
         Return the composition of three rotation M = RotZ(Y) . RotY(P) . RotX(R)
         """
         # evaluate the RPY matrix
-        matrix_rpy = self.rot_z(self.yaw) * self.rot_y(self.pitch) * self.rot_x(self.roll)
+
+        roll, pitch, yaw = self.attitude
+        
+        matrix_rpy = self.rot_z(yaw) * self.rot_y(pitch) * self.rot_x(roll)
 
         # compose with constant offset rotation
         matrix = self.offset_rotation * matrix_rpy
@@ -85,7 +88,7 @@ class TagPositionAttitudeView:
         """
         self.position = [x, y, z]
         self.attitude = [roll, pitch, yaw]
-    
+        
     def update_view(self):
         """
         Update the reference frame with current data.
