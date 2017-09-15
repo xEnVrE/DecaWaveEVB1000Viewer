@@ -103,15 +103,20 @@ class MatplotlibViewerCanvas(FigureCanvas):
 
         # start tags position animation
         time_step = 1.0 / self.frame_rate * 1000
-        self.anim = animation.FuncAnimation(figure, self.update_tags_position_view, interval = time_step)
+        self.anim = animation.FuncAnimation(figure, self.update_tags_view, interval = time_step)
 
-    def update_tags_position_view(self, frame_number):
+    def update_tags_view(self, frame_number):
         """
         Update each tag position view in self.tags_position_view
         """
         # update each tag position view in self.tags_position_view
         for view_name in self.tags_position_view:
             self.tags_position_view[view_name].update_view()
+
+        # update each tag position attitude view in self.tags_position_attitude_view
+        for view_name in self.tags_position_attitude_view:
+            self.tags_position_attitude_view[view_name].update_view()
+
 
     def set_axes_limits(self):
         """
