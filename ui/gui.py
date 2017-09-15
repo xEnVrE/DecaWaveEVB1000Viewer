@@ -23,6 +23,8 @@ from canvas.matplotlib_viewer_canvas import MatplotlibViewerCanvas
 # for logging
 from time import localtime, strftime
 
+t = 0
+
 class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
     """
     Main window class of EVB1000 Viewer
@@ -254,26 +256,36 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
                 pitch = data['P']
                 roll = data['R']
 
-            if data['msg_type'] == 'tpr':
-                # update canvas with new position
-                self.mpl_canvas.set_tag_raw_position(tag_id, x, y, z)
-            elif data['msg_type'] == 'kmf':
-                # update canvas with new estimated position and attitude␇
-                self.mpl_cavas.set_tag_estimated_pose(tag_id, x, y, z, roll, pitch, yaw)
-            
-            if data['msg_type'] == 'tpr':
-                # update widget with new position
-                widget.position = (x, y, z)
-            elif data['msg_type'] == 'kmf':
-                # update widget with new position
-                widget.estimated_pose = (x, y, z, roll, pitch, yaw)
+            # if data['msg_type'] == 'tpr':
+            #     # update canvas with new position
+            #     self.mpl_canvas.set_tag_raw_position(tag_id, x, y, z)
+            # elif data['msg_type'] == 'kmf':
+            #     # update canvas with new estimated position and attitude
+            #     self.mpl_canvas.set_tag_estimated_pose(tag_id, x, y, z, roll, pitch, yaw)
 
+            global t
+            t = t + 0.1
+            
+            self.mpl_canvas.set_tag_estimated_pose(tag_id, x, y, z, 0, 0, t)
+            self.mpl_canvas.set_tag_raw_position(tag_id, x, y, z)
+            
+            # if data['msg_type'] == 'tpr':
+            #     # update widget with new position
+            #     widget.position = (x, y, z)
+            # elif data['msg_type'] == 'kmf':
+            #     # update widget with new position
+            #     widget.estimated_pose = (x, y, z, roll, pitch, yaw)
+
+            widget.estimated_pose = (x, y, z, 0, 0, 0)
+            
     def handle_anch_report_rcvd(self, data):
         """
         Handle the reception of a Anchor Position Report message    
         """
 
-        if not self.anc_positions_set:
+        # if the anchors position are not set yet and the common plane height is set
+        # by the user draw the anchors
+        if not self.anc_positions_set and self.mpl_canvas.is_plane_height_set():
             # extract Anchors position
             coordinates = [[data['a0_x'], data['a0_y'], data['a0_z']],
                            [data['a1_x'], data['a1_y'], data['a1_z']],
@@ -308,7 +320,7 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
             self.mpl_canvas.draw_static_objects()
 
             # instantiate anch item widgets
-            for i in range(4):
+            for i in reversed(range(4)):
                 c = colors[i]
                 anch_widget = AnchItem(self.ui, i, coordinates[i])
                 anch_widget.color = c.color_255
