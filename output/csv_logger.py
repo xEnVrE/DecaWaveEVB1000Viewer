@@ -6,16 +6,16 @@ from device.decoder import DataFromEVB1000
 
 class CSVLogger:
     """
-    Save data from the EVB1000 serial to a csv file.
+    Save data from the EVB1000 serial to a csv files.
     """
 
     def __init__(self):
 
-        # uninitialized file descriptor
-        self._file = None
+        # empty dictionary of file descriptors
+        self.files = dict()
 
-        # uninitialized writer
-        self.writer = None
+        # empty ditionary of writers
+        self.writers = dict()
 
         # set state to disabled
         self._enabled = False
@@ -40,31 +40,38 @@ class CSVLogger:
         # extract data
         data = evb1000_data.decoded
 
+        # extract message type
+        msg_type = data['msg_type']
+
         # log only Tag Position Report messages
-        if data['msg_type'] != 'tpr':
+        if msg_type != 'tpr' and msg_type != 'apr'\
+        and msg_type != 'kmf':
             return 
 
-        # open file descriptor in case it is closed
-        #
-        # file is opened in append mode so that
-        # a newly connected tag with the same id
-        # logs in the same file
-        if self._file == None:
+        try:
+            self.writers[msg_type].writerow(evb1000_data.decoded)
+        except KeyError:
+            
+            # if the key does not exist the file has to be
+            # created for the first time
             filename = "tag_" + str(data['tag_id']) + "_" +\
-                       time.strftime("%d_%m_%Y") + "_" + str(data['msg_type'])
-            self._file = open(filename + '.csv', 'a')
+                       time.strftime("%d_%m_%Y") + "_" + str(msg_type)
+            
+            # file is opened in append mode so that a newly
+            # connected tag with the same id logs in the same file
+            fd = open( filename + '.csv', 'a')
+            self.files[msg_type] = fd
 
-            # write header
-            self.writer = csv.DictWriter(self._file, evb1000_data.msg_fields)
-            self.writer.writeheader()
-        
-        # write new data
-        self.writer.writerow(evb1000_data.decoded)
+            # create a new writer
+            self.writers[msg_type] = csv.DictWriter(fd, evb1000_data.msg_fields)
 
+            # now the new data can be written
+            self.writers[msg_type].writerow(evb1000_data.decoded)
+            
     def close(self):
         """
         Close the file descriptor.
         """
-        if self._file:
-            self._file.close()
-
+        print('close')
+        for key in self.files:
+            self.files[key].close()
