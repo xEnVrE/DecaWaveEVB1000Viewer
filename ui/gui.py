@@ -23,8 +23,6 @@ from canvas.matplotlib_viewer_canvas import MatplotlibViewerCanvas
 # for logging
 from time import localtime, strftime
 
-t = 0
-
 class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
     """
     Main window class of EVB1000 Viewer
@@ -328,6 +326,10 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
 
         Method called when actionQuit is triggered.
         """
+        # stop all devices in device manager
+        self.dev_man.stop_all_devices()
+       
+        # close the window
         self.close()
 
 class Logger:
