@@ -18,15 +18,20 @@ from time import sleep
 
 # sys
 import sys
+import errno
 
 # QtWidgets contains QApplication
 from PyQt5 import QtWidgets
 
 # EVB1000 decoder
 from device.decoder import DataFromEVB1000
+from device.decoder import InvalidDataFromEVB1000
 
-# CSV loffer
+# CSV logger
 from output.csv_logger import CSVLogger
+
+# csv required by class DeviceVIDPIDList
+import csv
 
 class Device(QThread):
     """
@@ -136,8 +141,12 @@ class Device(QThread):
                     # TODO: consider a buffered approach
                     #
                     
-                    # decode last line received
-                    evb1000_data = DataFromEVB1000(line)
+                    # decode last line received if possible
+                    try:
+                        evb1000_data = DataFromEVB1000(line)
+                    except InvalidDataFromEVB1000:
+                        # ignore this line
+                        continue
 
                     # continue only if message type was decoded successfully
                     if evb1000_data.msg_type_decoded:
@@ -203,7 +212,90 @@ class Device(QThread):
     def register_new_data_available_slot(self, slot):
         self.new_data_available.connect(slot)
 
+class MalformedConfigurationFile(Exception):
+        pass
 
+class DeviceVIDPIDList:
+    """
+    Store VIDs and PIDs for devices that are part of the EVB1000 system.
+    """
+
+    def __init__(self, filename):
+
+        # filename of the configuration file
+        self.filename = filename
+        
+        # empty list of ids
+        self.vid_pid_s = []
+
+        # load VIDs and PIDs from file
+        self.load_from_file()
+
+    def get_vid_pid_list(self):
+        """
+        Return the list containing the valid VIDs and PIDs
+        """
+
+        return self.vid_pid_s
+
+    def load_from_file(self):
+        """
+        Load VIDs and PIDs from file
+        """
+
+        # if state = 0 the function checks if
+        # the file starts with the string CONFIG_VID_PID
+        state = 0
+
+        try: 
+            with open(self.filename, 'r') as csvfile:
+                reader = csv.reader(csvfile, delimiter=' ')
+                for row in reader:
+
+                    # checks if the file starts with CONFIG_VID_PID
+                    if state == 0:
+                        if not (row[0] == 'CONFIG_VID_PID'):
+                            raise MalformedConfigurationFile
+                        else:
+                            # go to next step, i.e., checking the header of the file
+                            state = state + 1
+                            
+                    # checks if the header is of the form 'VID PID'
+                    elif state == 1:
+                        if not (row[0] == 'VID' and row[1] == 'PID'):
+                            raise MalformedConfigurationFile
+                        else:
+                            # go to next step, i.e., reading tuples of VIDs and PIDs
+                            # if they are valid
+                            state = state + 1
+
+                    # read and store tuples of VIDs and PIDs, if they are valid
+                    else:
+                        # extract VID and PID
+                        vid = row[0]
+                        pid = row[1]
+                        
+                        # check if the row contains a 4 characters long VID and
+                        # a 4 characters long PID
+                        if (len(row[0]) != 4) or (len(row[1]) != 4):
+                            raise MalformedConfigurationFile
+
+                        # store (VID, PID) pair
+                        self.vid_pid_s.append((vid,pid))
+        
+        except (OSError, IOError) as e:
+            if getattr(e, 'errno', 0) == errno.ENOENT:
+                print('Error: Configuration file ' + self.filename + ' not found.')
+                sys.exit(1)
+        except MalformedConfigurationFile:
+            print('Error: Malformed configuration file ' + self.filename + '.')
+            sys.exit(1)
+
+        # if no (VID, PID) tuples were found exit
+        if len(self.vid_pid_s) == 0:
+            print('Error: No (VID, PID) entries found in ' + self.filename + '.')
+            sys.exit(1)
+              
 class DeviceManager(QThread):
     """
     Manage EVB1000 Tag devices connected through a serial port.
@@ -216,7 +308,7 @@ class DeviceManager(QThread):
     new_dev_connected_sig = pyqtSignal()
     dev_removed_sig = pyqtSignal()
     
-    def __init__(self, target_vid, target_pid):
+    def __init__(self, vid_pid_list):
 
 
         # call Thread constructor
@@ -233,9 +325,8 @@ class DeviceManager(QThread):
         # empty list of *just* removed  devices
         self._removed_devices = []
 
-        # store pid and vid for the target device of interest
-        self.target_vid = target_vid
-        self.target_pid = target_pid
+        # store list of PIDs and VIDs of devices belonging to the EVB1000 system
+        self.target_vid_pid = vid_pid_list.get_vid_pid_list()
 
     @property
     def new_devices(self):
@@ -352,9 +443,12 @@ class DeviceManager(QThread):
         """
         
         # fetch only those ports having
-        # VID:PID == target_vid:target_pid
-        vid_pid = self.target_vid + ':' + self.target_pid
-        ports = [p for p in list_ports.grep(vid_pid)]
+        # VID:PID == a valid (VID, PID) pair in target_vid_pid
+        ports = []
+
+        for valid_pair in self.target_vid_pid:
+            vid_pid = valid_pair[0] + ':' + valid_pair[1]
+            ports = ports +  [p for p in list_ports.grep(vid_pid)]
         #ports = list_ports.comports()
         
         # add new ports to connected_ports
@@ -380,50 +474,3 @@ class DeviceManager(QThread):
 
     def register_devices_removed_slot(self, slot):
         self.dev_removed_sig.connect(slot)
-        
-class MockGUI(QThread):
-    """
-    Mock GUI class to test slot-signal connection
-    """
-    
-    def __init__(self, dev_man):
-        # call Thread constructor
-        QThread.__init__(self)
-
-        # save reference to instance of the device manager
-        self.dev_man = dev_man
-        self.dev_man.register_new_devices_connected_slot(self.new_devices_connected)
-
-    @pyqtSlot()
-    def new_devices_connected(self):
-        # get new devices
-        devs = self.dev_man.new_devices
-
-        # connect new_data_available to slot of each device
-        for dev in devs:
-            print('New device connected: ' + dev.port.device)
-            dev.register_new_data_available_slot(self.new_data_available)
-
-    @pyqtSlot(str)
-    def new_data_available(self, device_id):
-        
-        # retrieve device from device manager
-        device = self.dev_man.device(device_id)
-
-        # print new data
-        print(device_id + ' ' + str(device.last_data))
-
-    def run(self):
-        while True:
-              pass
-
-if __name__ == '__main__':
-    app = QtWidgets.QApplication(sys.argv)
-
-    dev_man = DeviceManager(target_vid = '0403', target_pid = '6001')
-    dev_man.start()
-
-    gui = MockGUI(dev_man)
-    gui.start()
-
-    sys.exit(app.exec_())

@@ -12,6 +12,10 @@ import matplotlib.animation as animation
 
 # representation of tag position as a scatter
 from canvas.tag_position_view import TagPositionView
+from canvas.tag_position_view import TagPositionAttitudeView
+
+# reppresentation of the reference frame
+from canvas.reference_frame import ReferenceFrame
 
 # lock
 from threading import Lock
@@ -43,6 +47,9 @@ class MatplotlibViewerCanvas(FigureCanvas):
 
         # empty dictionary of TagPositionView scatters
         self.tags_position_view = dict()
+        
+        # empty dictionary of TagPositionAttitudeView plots
+        self.tags_position_attitude_view = dict()
 
         # common height of anchors 0, 1 and 2
         self._anchors_plane_height = -1
@@ -96,15 +103,20 @@ class MatplotlibViewerCanvas(FigureCanvas):
 
         # start tags position animation
         time_step = 1.0 / self.frame_rate * 1000
-        self.anim = animation.FuncAnimation(figure, self.update_tags_position_view, interval = time_step)
+        self.anim = animation.FuncAnimation(figure, self.update_tags_view, interval = time_step)
 
-    def update_tags_position_view(self, frame_number):
+    def update_tags_view(self, frame_number):
         """
         Update each tag position view in self.tags_position_view
         """
         # update each tag position view in self.tags_position_view
         for view_name in self.tags_position_view:
             self.tags_position_view[view_name].update_view()
+
+        # update each tag position attitude view in self.tags_position_attitude_view
+        for view_name in self.tags_position_attitude_view:
+            self.tags_position_attitude_view[view_name].update_view()
+
 
     def set_axes_limits(self):
         """
@@ -154,8 +166,6 @@ class MatplotlibViewerCanvas(FigureCanvas):
 
             # append to list
             self.anchors.append(np_anchor_transformed)
-
-
             
     def set_new_tag(self, tag_ID, tag_color):
         """
@@ -165,11 +175,18 @@ class MatplotlibViewerCanvas(FigureCanvas):
         # instantiate a new TagPositionView
         self.tags_position_view[tag_ID] = TagPositionView(self.axes,\
                                                           self.tag_buffer_size,\
-                                                          tag_color)        
+                                                          tag_color)
+
+        self.tags_position_attitude_view[tag_ID] = TagPositionAttitudeView(self.axes,\
+                                                                           tag_color) 
+        
     def is_tag_view(self, tag_ID):
         """
         Return True if the a TagPositionView for tag <tag_ID> already exists.
         Return False otherwise.
+
+        Note that the existance of a TagPositionView for a tag also implies
+        the existance of a TagPositionAttitudeView.
         """
 
         return tag_ID in self.tags_position_view
@@ -191,8 +208,25 @@ class MatplotlibViewerCanvas(FigureCanvas):
         
         self.anchor_colors = colors
 
-    
-    def set_tag_position(self, tag_ID, x, y, z):
+    def set_tag_estimated_pose(self, tag_ID, x, y, z, roll, pitch, yaw):
+        """
+        Inform the tag position attitude view of the tag <tag_ID> that a new pose 
+        [x, y, z, roll, pitch, yaw] is available.
+        """
+
+        # perform homogeneous transformation on data
+        position_data_frame = np.array([[x,y,z]]).T
+        position_mpl_frame = self.vector_hom_transformation(position_data_frame)
+
+        # extract coordinates
+        x = position_mpl_frame.item(0)
+        y = position_mpl_frame.item(1)
+        z = position_mpl_frame.item(2)
+
+        # set new position
+        self.tags_position_attitude_view[tag_ID].new_pose(x, y, z, roll, pitch, yaw)
+        
+    def set_tag_raw_position(self, tag_ID, x, y, z):
         """
         Inform the tag position view of the tag <tag_ID> that a new position [x, y, z]
         is available.
@@ -359,64 +393,7 @@ class Anchor:
         # draw the other half of the cylinder
         axes.plot_surface(self.x, self.y_neg, self.z, color = c,\
                           alpha=0.5, rstride=rstride, cstride=cstride)
-        
-class ReferenceFrame:
-    """
-    Represents a reference frame obtained from the Matplotlib view frame
-    rotated by an amount described by a rotation matrix
-    """
-    
-    def __init__(self, rotation):
-
-        # store the rotation matrix
-        self.rotation = rotation
-        
-    def draw(self, axes):
-        """
-        Draw the reference frame with three coloured axes.
-        """
-        # x axis (direction [1, 0, 0] expressed in Matplotlib frame)
-        self.draw_axis( axes, 'x', 0.7, 1)
-        
-        # y axis (direction [0, 1, 0] expressed in Matplotlib frame)
-        self.draw_axis( axes, 'y', 0.7, 1)
-        
-        # z axis (direction [0, 0, 1] expressed in Matplotlib frame)
-        self.draw_axis( axes, 'z', 0.7, 1)
-
-    def draw_axis(self, axes, axis_name, alpha, linewidth):
-        """
-        Draw an axis in axes given its name, alpha channel and linewidth.
-
-        Colour is decided depending on the axis name using the standard convention:
-        -x axis: red
-        -y axis: green
-        -z axis: blue
-        """
-        # resolution along axis
-        resolution = 100
-
-        # sample along axis
-        segment = np.linspace(0, 1, resolution)
-
-        # generate points along axis_name axis
-        if axis_name == 'x':
-            axis = np.array([segment, np.zeros(resolution), np.zeros(resolution)])
-            color = 'r'
-        elif axis_name == 'y':
-            axis = np.array([np.zeros(resolution), segment, np.zeros(resolution)])
-            color = 'g'
-        elif axis_name == 'z':
-            axis = np.array([np.zeros(resolution), np.zeros(resolution), segment])
-            color = 'b'
-
-        # rotate axis
-        axis = self.rotation * axis
-
-        # draw axis
-        axes.plot(axis[0].A1, axis[1].A1, axis[2].A1,\
-                  color = color, alpha=alpha, linewidth = linewidth)
-        
+                
 class Plane:
     """
     Represents a square plane were the anchor are fixed. 

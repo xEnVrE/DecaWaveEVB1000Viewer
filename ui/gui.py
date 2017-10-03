@@ -197,14 +197,18 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         data = device.last_data
 
         # handle according to message type
-        if data['msg_type'] == 'tpr':
+        # 'tpr' contains raw trilateration data
+        # 'kmf' contains estimated position and attitude
+        if data['msg_type'] == 'tpr' or data['msg_type'] == 'kmf':
             self.handle_tag_report_rcvd(device_id, data)
         elif data['msg_type'] == 'apr':
             self.handle_anch_report_rcvd(data)
 
     def handle_tag_report_rcvd(self, device_id, data):
         """        
-        Handle the reception of a Tag Position Report message
+        Handle the reception of:
+        - a Tag Position Report message
+        - a Tag Estimated Position/Attitude Report message
         """
         
         # get the Tag widget 
@@ -240,18 +244,32 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
                 
                 # set widget label color
                 widget.tag_id_color = c.color_255
-                
-            # get Tag position
+
+            # get Tag position or estimated position
             x = data['x']
             y = data['y']
             z = data['z']
-                
-            # update canvas with new position
-            self.mpl_canvas.set_tag_position(tag_id, x, y, z)
-                
-            # update widget with new position
-            widget.position = (x, y, z)
 
+            if data['msg_type'] == 'kmf':
+                # get also estimated attitude
+                yaw = data['Y']
+                pitch = data['P']
+                roll = data['R']
+
+            if data['msg_type'] == 'tpr':
+                # update canvas with new position
+                self.mpl_canvas.set_tag_raw_position(tag_id, x, y, z)
+            elif data['msg_type'] == 'kmf':
+                # update canvas with new estimated position and attitude
+                self.mpl_canvas.set_tag_estimated_pose(tag_id, x, y, z, roll, pitch, yaw)
+
+            if data['msg_type'] == 'tpr':
+                # update widget with new position
+                widget.position = (x, y, z)
+            elif data['msg_type'] == 'kmf':
+                # update widget with new position
+                widget.estimated_pose = (x, y, z, roll, pitch, yaw)
+            
     def handle_anch_report_rcvd(self, data):
         """
         Handle the reception of a Anchor Position Report message    

@@ -51,7 +51,7 @@ class CSVLogger:
         # logs in the same file
         if self._file == None:
             filename = "tag_" + str(data['tag_id']) + "_" +\
-                       time.strftime("%d_%m_%Y")
+                       time.strftime("%d_%m_%Y") + "_" + str(data['msg_type'])
             self._file = open(filename + '.csv', 'a')
 
             # write header

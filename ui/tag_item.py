@@ -40,6 +40,14 @@ class TagItem(QFrame):
         self.ui.yLabelValue.setText("-")
         self.ui.zLabelValue.setText("-")
 
+        # set estimated coordinates
+        self.ui.xEstLabelValue.setText("-")
+        self.ui.yEstLabelValue.setText("-")
+        self.ui.zEstLabelValue.setText("-")
+        self.ui.rollEstLabelValue.setText("-")
+        self.ui.pitchEstLabelValue.setText("-")
+        self.ui.yawEstLabelValue.setText("-")
+        
     @property
     def is_tag_id_set(self):
         """
@@ -82,7 +90,53 @@ class TagItem(QFrame):
         self.ui.xLabelValue.setText(x_str)
         self.ui.yLabelValue.setText(y_str)
         self.ui.zLabelValue.setText(z_str)
-                
+
+
+    @property
+    def estimated_pose(self):
+        """
+        Get tag estimated pose.
+        """
+
+        x = float(self.ui.xEstLabelValue.text())
+        y = float(self.ui.yEstLabelValue.text())
+        z = float(self.ui.LEstlabelValue.text())
+
+        roll = float(self.ui.rollEstLabelValue.text())
+        pitch = float(self.ui.pitchEstLabelValue.text())
+        yaw = float(self.ui.yawEstLabelValue.text())
+
+        return x, y, z, roll, pitch, yaw
+
+    @estimated_pose.setter
+    def estimated_pose(self, pos):
+        """
+        Set tag estimated pose.
+        """
+
+        # extract from tuple
+        x, y, z, roll, pitch, yaw = pos
+        
+        # set the format of the coordiantes
+        # of Tag estimated position
+        x_str = format(x, '.3f')
+        y_str = format(y, '.3f')
+        z_str = format(z, '.3f')
+
+        # set the format of the coordiantes
+        # of Tag estimated attitude
+        roll_str = format(roll, '.3f')
+        pitch_str = format(pitch, '.3f')
+        yaw_str = format(yaw, '.3f')
+        
+        # set labels
+        self.ui.xEstLabelValue.setText(x_str)
+        self.ui.yEstLabelValue.setText(y_str)
+        self.ui.zEstLabelValue.setText(z_str)
+        self.ui.rollEstLabelValue.setText(roll_str)
+        self.ui.pitchEstLabelValue.setText(pitch_str)
+        self.ui.yawEstLabelValue.setText(yaw_str)
+        
     @property
     def tag_id(self):
         """
@@ -157,9 +211,10 @@ class TagItem(QFrame):
         """
         Return Tag msg rate
         """
-        
-        return self.ui.rateLabelValue.text()
 
+        #return self.ui.rateLabelValue.text()
+        pass
+        
     @tag_msg_rate.setter
     def tag_msg_rate(self, rate):
         """
@@ -167,7 +222,8 @@ class TagItem(QFrame):
         """
 
         #self.ui.rateLabelValue.setText(rate)
-
+        pass
+        
     @property
     def is_record_active(self):
         return self.ui.recordCheckbox.isChecked()
