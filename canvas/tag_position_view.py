@@ -24,13 +24,14 @@ class TagPositionAttitudeView:
         # TODO:
         # pass the color to the RefernceFrame constructor
         self.reference_frame = ReferenceFrame(self.offset_rotation, length = 0.1)
-        # draw the reference frame for the first time
-        self.reference_frame.draw(self.axes)
 
         # default reference frame origin 
         self.position = [0, 0, 0]
         # default reference frame attitude (R = P = Y = 0)
         self.attitude = [0, 0, 0]
+
+        # remember if the axes have already been drawn
+        self.axes_already_drawn = False
 
     def rot_x(self, rot_angle):
         """
@@ -86,16 +87,26 @@ class TagPositionAttitudeView:
         """
         Add a new tag pose (cartesian position and attitude) 
         """
+        
         self.position = [x, y, z]
         self.attitude = [roll, pitch, yaw]
+
+        if not self.axes_already_drawn:
+            self.axes_already_drawn = True
+            # draw the reference frame for the first time
+            self.reference_frame.draw(self.axes)
+
         
     def update_view(self):
         """
         Update the reference frame with current data.
         """
-        self.reference_frame.translation = self.position
-        self.reference_frame.rotation = self.rotation_matrix()
-        self.reference_frame.update()
+        
+        if self.axes_already_drawn:
+            # update only if the axes were already drawn for the first time
+            self.reference_frame.translation = self.position
+            self.reference_frame.rotation = self.rotation_matrix()
+            self.reference_frame.update()
         
 class TagPositionView:
     """
