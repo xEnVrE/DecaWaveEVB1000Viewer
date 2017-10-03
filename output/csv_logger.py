@@ -65,6 +65,9 @@ class CSVLogger:
             # create a new writer
             writer = csv.DictWriter(fd, evb1000_data.msg_fields)
             self.writers[msg_type] = writer
+
+            # write the header
+            writer.writeheader()
             
             # now the new data can be written
             writer.writerow(evb1000_data.decoded)
