@@ -63,10 +63,11 @@ class CSVLogger:
             self.files[msg_type] = fd
 
             # create a new writer
-            self.writers[msg_type] = csv.DictWriter(fd, evb1000_data.msg_fields)
-
+            writer = csv.DictWriter(fd, evb1000_data.msg_fields)
+            self.writers[msg_type] = writer
+            
             # now the new data can be written
-            self.writers[msg_type].writerow(evb1000_data.decoded)
+            writer.writerow(evb1000_data.decoded)
             
     def close(self):
         """
