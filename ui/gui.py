@@ -256,27 +256,19 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
                 pitch = data['P']
                 roll = data['R']
 
-            # if data['msg_type'] == 'tpr':
-            #     # update canvas with new position
-            #     self.mpl_canvas.set_tag_raw_position(tag_id, x, y, z)
-            # elif data['msg_type'] == 'kmf':
-            #     # update canvas with new estimated position and attitude
-            #     self.mpl_canvas.set_tag_estimated_pose(tag_id, x, y, z, roll, pitch, yaw)
+            if data['msg_type'] == 'tpr':
+                # update canvas with new position
+                self.mpl_canvas.set_tag_raw_position(tag_id, x, y, z)
+            elif data['msg_type'] == 'kmf':
+                # update canvas with new estimated position and attitude
+                self.mpl_canvas.set_tag_estimated_pose(tag_id, x, y, z, roll, pitch, yaw)
 
-            global t
-            t = t + 0.1
-            
-            self.mpl_canvas.set_tag_estimated_pose(tag_id, x, y, z, 0, 0, t)
-            self.mpl_canvas.set_tag_raw_position(tag_id, x, y, z)
-            
-            # if data['msg_type'] == 'tpr':
-            #     # update widget with new position
-            #     widget.position = (x, y, z)
-            # elif data['msg_type'] == 'kmf':
-            #     # update widget with new position
-            #     widget.estimated_pose = (x, y, z, roll, pitch, yaw)
-
-            widget.estimated_pose = (x, y, z, 0, 0, 0)
+            if data['msg_type'] == 'tpr':
+                # update widget with new position
+                widget.position = (x, y, z)
+            elif data['msg_type'] == 'kmf':
+                # update widget with new position
+                widget.estimated_pose = (x, y, z, roll, pitch, yaw)
             
     def handle_anch_report_rcvd(self, data):
         """
