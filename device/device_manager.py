@@ -430,6 +430,19 @@ class DeviceManager(QThread):
 
         return removed_devices
 
+    def stop_all_devices(self):
+        """
+        Stop all devices.
+        """
+        # stop devices
+        for device_id in self.configured_devices:
+            self.configured_devices[device_id].stop_device()
+
+        # wait for thread end
+        for device_id in self.configured_devices:
+            self.configured_devices[device_id].wait()
+
+
     def update_ports(self):
         """
         Update list of serial ports connected.
