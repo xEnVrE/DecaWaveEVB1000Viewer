@@ -47,7 +47,7 @@ class DataFromEVB1000:
         # convert to string if possible
         try:
             self.line = self.line.decode('utf-8')
-        except UnicodeDecodeError, ValueError:
+        except (UnicodeDecodeError, ValueError):
             raise InvalidDataFromEVB1000
 
         # empty msg_type
