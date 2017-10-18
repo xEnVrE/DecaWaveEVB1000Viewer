@@ -10,7 +10,11 @@ def decode_float(string):
     """
     Return the float coded in the hex string.
     """
-    hex_code = bytes.fromhex(string)
+    try:
+        hex_code = bytes.fromhex(string)
+    except ValueError:
+        raise InvalidDataFromEVB1000
+    
     unpacked = struct.unpack('>f', hex_code)
     return unpacked[0]
 
@@ -47,7 +51,7 @@ class DataFromEVB1000:
         # convert to string if possible
         try:
             self.line = self.line.decode('utf-8')
-        except (UnicodeDecodeError, ValueError):
+        except UnicodeDecodeError:
             raise InvalidDataFromEVB1000
 
         # empty msg_type
@@ -147,6 +151,7 @@ class DataFromEVB1000:
 
             # pick the right decoder
             decoder = select_decoder(item_type_name)
+            
             decoded.append(decoder(item))
 
         # return a dictionary
