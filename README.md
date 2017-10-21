@@ -10,7 +10,7 @@ Libraries required are
  * PySerial
  * PyQt5
 
-- **On Linux:**
+**On Linux:**
 ```
     $ git clone https://github.com/xEnVrE/DecaWaveEVB1000Viewer.git
     $ cd DecaWaveEVB1000Viewer.git
