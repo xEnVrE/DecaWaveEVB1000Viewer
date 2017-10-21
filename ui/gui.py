@@ -54,10 +54,6 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
         # connect action
         self.ui.actionQuit.triggered.connect(self.quit)
 
-        # connect buttons
-        self.ui.connectedTagsRecordButton.clicked.connect(self.connectedTagsRecordButton_on_click)
-        self.ui.connectedTagsStopButton.clicked.connect(self.connectedTagsStopButton_on_click)
-        
         # store the Device Manager 
         self.dev_man = device_manager
         # register new_devices_connected slot
@@ -73,56 +69,6 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
 
         # remeber if the anchors position were already set 
         self.anc_positions_set = False
-
-        # disable Stop recording button
-        self.ui.connectedTagsStopButton.setDisabled(True)
-
-        # disable Record button
-        self.ui.connectedTagsRecordButton.setDisabled(True)
-
-    def connectedTagsRecordButton_on_click(self):
-        """
-        Enable data recording.
-        """
-        for device_id, tag_item in self.tags_widgets.items():
-            # extract device
-            device = self.dev_man.device(device_id)
-
-            if tag_item.is_record_active:
-                # enable recording if the checkbox is checked
-                device.logger.enabled = True
-
-                # enable recording status label
-                tag_item.set_recording_status(True)
-
-        # disable Record button
-        self.ui.connectedTagsRecordButton.setDisabled(True)
-
-        # enable Stop button
-        self.ui.connectedTagsStopButton.setDisabled(False)
-            
-    def connectedTagsStopButton_on_click(self):
-        """
-        Stop data recording.
-        """
-
-        # disable recording on all connected device
-        for device_id, tag_item in self.tags_widgets.items():
-            # extract device
-            device = self.dev_man.device(device_id)
-
-            # disable recording
-            device.logger.enabled = False
-
-            # enable recording status label
-            tag_item.set_recording_status(False)
-
-        # enable Record button
-        self.ui.connectedTagsRecordButton.setDisabled(False)
-
-        # disable Stop button
-        self.ui.connectedTagsStopButton.setDisabled(True)
-
 
     @pyqtSlot()
     def new_devices_connected(self):

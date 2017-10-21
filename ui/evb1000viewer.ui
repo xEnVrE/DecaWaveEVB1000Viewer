@@ -137,8 +137,59 @@
        <string notr="true"/>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
+      <widget class="QWidget" name="connectedTagsTab">
+       <property name="autoFillBackground">
+        <bool>true</bool>
+       </property>
+       <attribute name="title">
+        <string>Connected Tags</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QScrollArea" name="connectedTagsScrollArea">
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="connectedTagsScrollAreaWidget">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>372</width>
+             <height>308</height>
+            </rect>
+           </property>
+           <layout class="QVBoxLayout" name="connectedTagsScrollAreaWidgetLayout">
+            <property name="rightMargin">
+             <number>15</number>
+            </property>
+            <item>
+             <spacer name="connectedTagsScrollAreaSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="anchorsTab">
        <property name="autoFillBackground">
         <bool>true</bool>
@@ -187,88 +238,6 @@
            </layout>
           </widget>
          </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="connectedTagsTab">
-       <property name="autoFillBackground">
-        <bool>true</bool>
-       </property>
-       <attribute name="title">
-        <string>Connected Tags</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_3">
-        <item>
-         <widget class="QScrollArea" name="connectedTagsScrollArea">
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="widgetResizable">
-           <bool>true</bool>
-          </property>
-          <widget class="QWidget" name="connectedTagsScrollAreaWidget">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>372</width>
-             <height>271</height>
-            </rect>
-           </property>
-           <layout class="QVBoxLayout" name="connectedTagsScrollAreaWidgetLayout">
-            <property name="rightMargin">
-             <number>15</number>
-            </property>
-            <item>
-             <spacer name="connectedTagsScrollAreaSpacer">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </widget>
-         </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="connectedTagsRecordButtonsHorizontalLayout">
-          <item>
-           <spacer name="connectedTagsRecordButtonsSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QPushButton" name="connectedTagsRecordButton">
-            <property name="text">
-             <string>Record</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="connectedTagsStopButton">
-            <property name="text">
-             <string>Stop</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
         </item>
        </layout>
       </widget>

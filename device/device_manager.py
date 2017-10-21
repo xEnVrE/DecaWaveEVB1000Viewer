@@ -27,9 +27,6 @@ from PyQt5 import QtWidgets
 from device.decoder import DataFromEVB1000
 from device.decoder import InvalidDataFromEVB1000
 
-# CSV logger
-from output.csv_logger import CSVLogger
-
 # csv required by class DeviceVIDPIDList
 import csv
 
@@ -65,15 +62,8 @@ class Device(QThread):
         self._last_data = None
         self.data_lock = Lock()
 
-        # instantiate a new csv logger
-        self._logger = CSVLogger()
-
     def __str__(self):
         return self.port.device
-
-    @property
-    def logger(self):
-        return self._logger
 
     @property
     def last_data(self):
@@ -156,16 +146,10 @@ class Device(QThread):
                         # signal the GUI that new data is available
                         self.new_data_available.emit(self.id)
 
-                        # log to file
-                        self.logger.log_data(evb1000_data)
-
             except SerialException:
                 pass
 
         if self.state == 'stopped':
-            # close csv file
-            self.logger.close()
-            
             # stop thread
             self.close()
 
