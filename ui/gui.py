@@ -89,9 +89,6 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
             # add tag widget to the layout
             # device id is used as key
             self.tags_widgets[dev.id] = TagItem(self.ui, str(dev))
-
-            # disable Record button
-            self.ui.connectedTagsRecordButton.setDisabled(False)
             
     @pyqtSlot()
     def devices_removed(self):
@@ -114,16 +111,6 @@ class EVB1000ViewerMainWindow(QtWidgets.QMainWindow):
             
             # remove reference to widget
             widget = None
-
-            # disable recording
-            dev.logger.enabled = False
-
-
-        if not self.tags_widgets:
-            # if there are no devices anymore
-            # disable the Record and Stop recording buttons
-            self.ui.connectedTagsRecordButton.setDisabled(True)
-            self.ui.connectedTagsStopButton.setDisabled(True)
 
     @pyqtSlot(str)
     def new_data_available(self, device_id):
